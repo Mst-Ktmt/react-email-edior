@@ -1,0 +1,85 @@
+{
+  "Defaults": {
+    "textContent": "<p>ここにテキストを入力</p>",
+    "buttonText": "クリック",
+    "imageAlt": "画像の説明"
+  },
+  "Header": {
+    "title": "メールエディタ",
+    "draft": "下書き",
+    "showPreview": "プレビュー",
+    "backToEdit": "編集に戻る"
+  },
+  "Sidebar": {
+    "title": "ブロック",
+    "text": "テキスト",
+    "image": "画像",
+    "button": "ボタン",
+    "divider": "区切り線",
+    "spacer": "スペーサー",
+    "section": "セクション",
+    "columns": "カラム",
+    "heading": "見出し",
+    "html": "HTML",
+    "social": "ソーシャル",
+    "menu": "メニュー"
+  },
+  "PropertyPanel": {
+    "title": "プロパティ",
+    "selectBlock": "ブロックを選択してください",
+    "noEditor": "このブロックタイプのエディタはありません",
+    "noDocument": "ドキュメントがありません",
+    "tabBlocks": "ブロック",
+    "tabBody": "ボディ",
+    "content": "コンテンツ",
+    "typography": "タイポグラフィ",
+    "background": "背景",
+    "spacing": "スペーシング",
+    "style": "スタイル",
+    "link": "リンク",
+    "image": "画像",
+    "button": "ボタン",
+    "lineStyle": "線のスタイル",
+    "fontSize": "フォントサイズ",
+    "lineHeight": "行の高さ",
+    "textColor": "テキスト色",
+    "textAlign": "テキスト配置",
+    "backgroundColor": "背景色",
+    "padding": "パディング",
+    "imageUrl": "画像URL",
+    "altText": "代替テキスト",
+    "width": "幅",
+    "linkUrl": "リンクURL",
+    "alignment": "配置",
+    "borderRadius": "角丸",
+    "buttonText": "ボタンテキスト",
+    "thickness": "太さ",
+    "color": "色",
+    "height": "高さ",
+    "contentWidth": "コンテンツ幅",
+    "fontFamily": "フォント",
+    "baseFontSize": "基本フォントサイズ",
+    "baseLineHeight": "基本行の高さ",
+    "linkColor": "リンク色"
+  },
+  "LocaleSwitcher": {
+    "ja": "日本語",
+    "en": "English"
+  },
+  "Canvas": {
+    "dropHere": "ここにドロップしてブロックを追加",
+    "dragBlocksHere": "ブロックをここにドラッグしてメール作成を開始",
+    "dropHereShort": "ここにドロップ",
+    "dragBlocksHereShort": "ブロックをドラッグ"
+  },
+  "KeyboardShortcuts": {
+    "title": "キーボードショートカット",
+    "undo": "元に戻す",
+    "redo": "やり直す",
+    "redoAlt": "やり直す（Windows）",
+    "deleteBlock": "ブロックを削除",
+    "showHelp": "ヘルプを表示",
+    "closeHelp": "ヘルプを閉じる",
+    "pressEscToClose": "Escキーで閉じる"
+  }
+}

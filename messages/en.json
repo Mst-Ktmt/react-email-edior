@@ -1,0 +1,85 @@
+{
+  "Defaults": {
+    "textContent": "<p>Enter your text here</p>",
+    "buttonText": "Click Here",
+    "imageAlt": "Image description"
+  },
+  "Header": {
+    "title": "Email Editor",
+    "draft": "Draft",
+    "showPreview": "Preview",
+    "backToEdit": "Back to Edit"
+  },
+  "Sidebar": {
+    "title": "Blocks",
+    "text": "Text",
+    "image": "Image",
+    "button": "Button",
+    "divider": "Divider",
+    "spacer": "Spacer",
+    "section": "Section",
+    "columns": "Columns",
+    "heading": "Heading",
+    "html": "HTML",
+    "social": "Social",
+    "menu": "Menu"
+  },
+  "PropertyPanel": {
+    "title": "Properties",
+    "selectBlock": "Select a block to edit properties",
+    "noEditor": "No editor available for this block type",
+    "noDocument": "No document loaded",
+    "tabBlocks": "Blocks",
+    "tabBody": "Body",
+    "content": "Content",
+    "typography": "Typography",
+    "background": "Background",
+    "spacing": "Spacing",
+    "style": "Style",
+    "link": "Link",
+    "image": "Image",
+    "button": "Button",
+    "lineStyle": "Line Style",
+    "fontSize": "Font Size",
+    "lineHeight": "Line Height",
+    "textColor": "Text Color",
+    "textAlign": "Text Align",
+    "backgroundColor": "Background Color",
+    "padding": "Padding",
+    "imageUrl": "Image URL",
+    "altText": "Alt Text",
+    "width": "Width",
+    "linkUrl": "Link URL",
+    "alignment": "Alignment",
+    "borderRadius": "Border Radius",
+    "buttonText": "Button Text",
+    "thickness": "Thickness",
+    "color": "Color",
+    "height": "Height",
+    "contentWidth": "Content Width",
+    "fontFamily": "Font Family",
+    "baseFontSize": "Base Font Size",
+    "baseLineHeight": "Base Line Height",
+    "linkColor": "Link Color"
+  },
+  "LocaleSwitcher": {
+    "ja": "Japanese",
+    "en": "English"
+  },
+  "Canvas": {
+    "dropHere": "Drop here to add a block",
+    "dragBlocksHere": "Drag blocks here to start building your email",
+    "dropHereShort": "Drop here",
+    "dragBlocksHereShort": "Drag blocks here"
+  },
+  "KeyboardShortcuts": {
+    "title": "Keyboard Shortcuts",
+    "undo": "Undo",
+    "redo": "Redo",
+    "redoAlt": "Redo (Windows)",
+    "deleteBlock": "Delete Block",
+    "showHelp": "Show Help",
+    "closeHelp": "Close Help",
+    "pressEscToClose": "Press Esc to close"
+  }
+}

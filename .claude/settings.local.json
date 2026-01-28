@@ -1,0 +1,7 @@
+{
+  "enabledMcpjsonServers": [
+    "executeautomation-playwright-server",
+    "context7"
+  ],
+  "enableAllProjectMcpServers": true
+}
