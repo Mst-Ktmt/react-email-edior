@@ -18,6 +18,8 @@ import {
   defaultHtmlBlockProps,
   defaultSocialBlockProps,
   defaultMenuBlockProps,
+  defaultVideoBlockProps,
+  defaultTimerBlockProps,
 } from '@/types/defaults';
 
 // 翻訳済みデフォルト値の型
@@ -137,6 +139,20 @@ function createDefaultBlock(blockType: string, localizedDefaults?: LocalizedDefa
         id,
         type: 'menu',
         props: { ...defaultMenuBlockProps },
+      };
+
+    case 'video':
+      return {
+        id,
+        type: 'video',
+        props: { ...defaultVideoBlockProps },
+      };
+
+    case 'timer':
+      return {
+        id,
+        type: 'timer',
+        props: { ...defaultTimerBlockProps },
       };
 
     default:

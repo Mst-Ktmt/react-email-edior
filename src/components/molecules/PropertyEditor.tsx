@@ -141,3 +141,11 @@ export function PropertySection({
 // ========================================
 
 export { TextInput, NumberInput, ColorPicker };
+export { FontFamilySelect } from '../atoms/FontFamilySelect';
+export { FontWeightSelect } from '../atoms/FontWeightSelect';
+export { LetterSpacingInput } from '../atoms/LetterSpacingInput';
+export { LinkTargetSelect } from '../atoms/LinkTargetSelect';
+export { ResponsiveToggle } from '../atoms/ResponsiveToggle';
+export { CheckboxInput } from '../atoms/CheckboxInput';
+export { FileUploader } from '../atoms/FileUploader';
+export type { UploadResult } from '../atoms/FileUploader';

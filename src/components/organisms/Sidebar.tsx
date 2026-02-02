@@ -12,6 +12,8 @@ import {
   Code,
   Share2,
   Menu,
+  Play,
+  Timer,
   type LucideIcon,
 } from 'lucide-react';
 import { DraggableBlock } from '@/features/editor/components/DraggableBlock';
@@ -33,6 +35,8 @@ const BLOCK_TYPES: { id: string; icon: LucideIcon }[] = [
   { id: 'html', icon: Code },
   { id: 'social', icon: Share2 },
   { id: 'menu', icon: Menu },
+  { id: 'video', icon: Play },
+  { id: 'timer', icon: Timer },
 ];
 
 export function Sidebar({ className = '' }: SidebarProps) {

@@ -24,3 +24,18 @@ export type { SocialEditorProps } from './SocialEditor';
 
 export { MenuEditor } from './MenuEditor';
 export type { MenuEditorProps } from './MenuEditor';
+
+export { BodySettingsEditor } from './BodySettingsEditor';
+export type { BodySettingsEditorProps } from './BodySettingsEditor';
+
+export { ColumnsEditor } from './ColumnsEditor';
+export type { ColumnsEditorProps } from './ColumnsEditor';
+
+export { SectionEditor } from './SectionEditor';
+export type { SectionEditorProps } from './SectionEditor';
+
+export { VideoEditor } from './VideoEditor';
+export type { VideoEditorProps } from './VideoEditor';
+
+export { TimerEditor } from './TimerEditor';
+export type { TimerEditorProps } from './TimerEditor';

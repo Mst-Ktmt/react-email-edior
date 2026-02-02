@@ -7,6 +7,8 @@ import {
   AlignEditor,
   TextInput,
   NumberInput,
+  LinkTargetSelect,
+  ResponsiveToggle,
 } from '../PropertyEditor';
 
 export interface ImageEditorProps {
@@ -38,21 +40,27 @@ export function ImageEditor({ props, onChange }: ImageEditorProps) {
           max={600}
           unit="px"
         />
+        <AlignEditor
+          label="Alignment"
+          value={props.align}
+          onChange={(value) => onChange({ align: value })}
+        />
       </PropertySection>
-      <PropertySection title="Link">
+      <PropertySection title="Action">
         <TextInput
           label="Link URL"
           value={props.linkUrl ?? ''}
           onChange={(value) => onChange({ linkUrl: value || '' })}
           placeholder="https://..."
         />
+        {props.linkUrl && (
+          <LinkTargetSelect
+            value={props.linkTarget ?? '_blank'}
+            onChange={(value) => onChange({ linkTarget: value as '_self' | '_blank' })}
+          />
+        )}
       </PropertySection>
       <PropertySection title="Style">
-        <AlignEditor
-          label="Alignment"
-          value={props.align}
-          onChange={(value) => onChange({ align: value })}
-        />
         <NumberInput
           label="Border Radius"
           value={props.borderRadius}
@@ -62,7 +70,7 @@ export function ImageEditor({ props, onChange }: ImageEditorProps) {
           unit="px"
         />
       </PropertySection>
-      <PropertySection title="Spacing">
+      <PropertySection title="General">
         <SpacingEditor
           label="Padding"
           value={props.padding}
@@ -75,6 +83,14 @@ export function ImageEditor({ props, onChange }: ImageEditorProps) {
           min={0}
           max={200}
           unit="px"
+        />
+      </PropertySection>
+      <PropertySection title="Responsive Design">
+        <ResponsiveToggle
+          hideOnDesktop={props.hideOnDesktop ?? false}
+          hideOnMobile={props.hideOnMobile ?? false}
+          onChangeDesktop={(value) => onChange({ hideOnDesktop: value })}
+          onChangeMobile={(value) => onChange({ hideOnMobile: value })}
         />
       </PropertySection>
     </>

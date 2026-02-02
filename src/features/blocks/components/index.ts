@@ -24,3 +24,7 @@ export { HtmlBlock } from './HtmlBlock';
 export { HeadingBlock } from './HeadingBlock';
 export { SocialBlock } from './SocialBlock';
 export { MenuBlock } from './MenuBlock';
+
+// Phase 3: Video & Timer Blocks
+export { VideoBlock } from './VideoBlock';
+export { TimerBlock } from './TimerBlock';

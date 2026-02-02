@@ -14,6 +14,8 @@ import type {
   HtmlBlockProps,
   SocialBlockProps,
   MenuBlockProps,
+  VideoBlockProps,
+  TimerBlockProps,
   Spacing,
 } from './props';
 
@@ -149,4 +151,32 @@ export const defaultMenuBlockProps: MenuBlockProps = {
   separator: '|',
   align: 'center',
   padding: { top: 10, right: 10, bottom: 10, left: 10 },
+};
+
+// ============================================================
+// Phase 3ブロックのデフォルト値
+// ============================================================
+
+export const defaultVideoBlockProps: VideoBlockProps = {
+  videoUrl: '',
+  thumbnailSrc: '',
+  alt: '',
+  width: '100%',
+  align: 'center',
+  padding: { top: 10, right: 10, bottom: 10, left: 10 },
+  borderRadius: 0,
+  playButtonColor: '#FF0000',
+};
+
+export const defaultTimerBlockProps: TimerBlockProps = {
+  endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+  showDays: true,
+  showHours: true,
+  showMinutes: true,
+  showSeconds: true,
+  fontSize: 24,
+  textColor: '#333333',
+  backgroundColor: 'transparent',
+  padding: { top: 10, right: 10, bottom: 10, left: 10 },
+  expiredMessage: 'Expired',
 };

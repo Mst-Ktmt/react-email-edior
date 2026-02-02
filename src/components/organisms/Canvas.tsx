@@ -21,6 +21,8 @@ import {
   HtmlBlock,
   SocialBlock,
   MenuBlock,
+  VideoBlock,
+  TimerBlock,
 } from '@/features/blocks/components';
 
 interface CanvasProps {
@@ -35,12 +37,14 @@ function BlockRenderer({
   selectedBlockId,
   onSelectBlock,
   onUpdateBlockContent,
+  onUpdateBlockText,
   isPreviewMode = false,
 }: {
   block: Block;
   selectedBlockId: string | null;
   onSelectBlock: (id: string) => void;
   onUpdateBlockContent: (blockId: string, content: string, currentProps: Record<string, unknown>) => void;
+  onUpdateBlockText: (blockId: string, text: string, currentProps: Record<string, unknown>) => void;
   isPreviewMode?: boolean;
 }): React.ReactNode {
   // プレビューモード時は選択状態を無効化
@@ -72,8 +76,10 @@ function BlockRenderer({
       return (
         <ButtonBlock
           props={block.props}
+          blockId={block.id}
           isSelected={isSelected}
           onClick={handleClick}
+          onUpdateText={(text) => onUpdateBlockText(block.id, text, block.props as unknown as Record<string, unknown>)}
         />
       );
 
@@ -114,6 +120,7 @@ function BlockRenderer({
                   selectedBlockId={selectedBlockId}
                   onSelectBlock={onSelectBlock}
                   onUpdateBlockContent={onUpdateBlockContent}
+                  onUpdateBlockText={onUpdateBlockText}
                   isPreviewMode={isPreviewMode}
                 />
               ) : (
@@ -127,6 +134,7 @@ function BlockRenderer({
                     selectedBlockId={selectedBlockId}
                     onSelectBlock={onSelectBlock}
                     onUpdateBlockContent={onUpdateBlockContent}
+                    onUpdateBlockText={onUpdateBlockText}
                     isPreviewMode={isPreviewMode}
                   />
                 </DraggableBlock>
@@ -151,6 +159,7 @@ function BlockRenderer({
                   selectedBlockId={selectedBlockId}
                   onSelectBlock={onSelectBlock}
                   onUpdateBlockContent={onUpdateBlockContent}
+                  onUpdateBlockText={onUpdateBlockText}
                   isPreviewMode={isPreviewMode}
                 />
               ) : (
@@ -164,6 +173,7 @@ function BlockRenderer({
                     selectedBlockId={selectedBlockId}
                     onSelectBlock={onSelectBlock}
                     onUpdateBlockContent={onUpdateBlockContent}
+                    onUpdateBlockText={onUpdateBlockText}
                     isPreviewMode={isPreviewMode}
                   />
                 </DraggableBlock>
@@ -188,8 +198,10 @@ function BlockRenderer({
       return (
         <HeadingBlock
           props={block.props}
+          blockId={block.id}
           isSelected={isSelected}
           onClick={handleClick}
+          onUpdateContent={(content) => onUpdateBlockContent(block.id, content, block.props as unknown as Record<string, unknown>)}
         />
       );
 
@@ -215,6 +227,26 @@ function BlockRenderer({
       return (
         <MenuBlock
           props={block.props}
+          isSelected={isSelected}
+          onClick={handleClick}
+        />
+      );
+
+    case 'video':
+      return (
+        <VideoBlock
+          props={block.props}
+          blockId={block.id}
+          isSelected={isSelected}
+          onClick={handleClick}
+        />
+      );
+
+    case 'timer':
+      return (
+        <TimerBlock
+          props={block.props}
+          blockId={block.id}
           isSelected={isSelected}
           onClick={handleClick}
         />
@@ -254,6 +286,10 @@ export function Canvas({ className = '' }: CanvasProps) {
     updateBlock(blockId, { props: { ...currentProps, content } } as Partial<Block>);
   };
 
+  const handleUpdateBlockText = (blockId: string, text: string, currentProps: Record<string, unknown>) => {
+    updateBlock(blockId, { props: { ...currentProps, text } } as Partial<Block>);
+  };
+
   const handleCanvasClick = (e: React.MouseEvent) => {
     // クリックがキャンバス直接（ブロック以外）の場合、選択解除
     if (e.target === e.currentTarget) {
@@ -283,6 +319,7 @@ export function Canvas({ className = '' }: CanvasProps) {
                     selectedBlockId={null}
                     onSelectBlock={() => {}}
                     onUpdateBlockContent={() => {}}
+                    onUpdateBlockText={() => {}}
                     isPreviewMode={true}
                   />
                 ))}
@@ -308,6 +345,7 @@ export function Canvas({ className = '' }: CanvasProps) {
                         selectedBlockId={selectedBlockId}
                         onSelectBlock={handleSelectBlock}
                         onUpdateBlockContent={handleUpdateBlockContent}
+                        onUpdateBlockText={handleUpdateBlockText}
                         isPreviewMode={false}
                       />
                     </DraggableBlock>

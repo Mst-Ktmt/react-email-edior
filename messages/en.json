@@ -22,7 +22,9 @@
     "heading": "Heading",
     "html": "HTML",
     "social": "Social",
-    "menu": "Menu"
+    "menu": "Menu",
+    "video": "Video",
+    "timer": "Timer"
   },
   "PropertyPanel": {
     "title": "Properties",

@@ -27,6 +27,19 @@ export type TextAlign = 'left' | 'center' | 'right';
  */
 export type ButtonWidth = 'auto' | 'full' | number;
 
+/**
+ * リンクターゲット
+ */
+export type LinkTarget = '_self' | '_blank';
+
+/**
+ * レスポンシブ表示設定（共通）
+ */
+export interface ResponsiveSettings {
+  hideOnDesktop?: boolean;
+  hideOnMobile?: boolean;
+}
+
 // ============================================================
 // 基本ブロックのプロパティ（Phase 1）
 // ============================================================
@@ -34,13 +47,15 @@ export type ButtonWidth = 'auto' | 'full' | number;
 /**
  * テキストブロックのプロパティ
  */
-export interface TextBlockProps {
+export interface TextBlockProps extends ResponsiveSettings {
   content: string;
   fontSize: number;
   fontFamily: string;
+  fontWeight?: string;
   textColor: string;
   textAlign: TextAlign;
   lineHeight: number;
+  letterSpacing?: number;
   padding: Spacing;
   backgroundColor: string;
   marginBottom: number;
@@ -49,11 +64,12 @@ export interface TextBlockProps {
 /**
  * 画像ブロックのプロパティ
  */
-export interface ImageBlockProps {
+export interface ImageBlockProps extends ResponsiveSettings {
   src: string;
   alt: string;
   width: number | '100%';
   linkUrl: string;
+  linkTarget?: LinkTarget;
   align: TextAlign;
   padding: Spacing;
   borderRadius: number;
@@ -63,15 +79,22 @@ export interface ImageBlockProps {
 /**
  * ボタンブロックのプロパティ
  */
-export interface ButtonBlockProps {
+export interface ButtonBlockProps extends ResponsiveSettings {
   text: string;
   linkUrl: string;
+  linkTarget?: LinkTarget;
   backgroundColor: string;
   textColor: string;
   fontSize: number;
   fontFamily: string;
+  fontWeight?: string;
+  lineHeight?: number;
+  letterSpacing?: number;
   padding: Spacing;
   borderRadius: number;
+  borderWidth?: number;
+  borderColor?: string;
+  borderStyle?: 'solid' | 'dashed' | 'dotted';
   align: TextAlign;
   width: ButtonWidth;
   marginBottom: number;
@@ -80,11 +103,12 @@ export interface ButtonBlockProps {
 /**
  * 区切り線ブロックのプロパティ
  */
-export interface DividerBlockProps {
+export interface DividerBlockProps extends ResponsiveSettings {
   color: string;
   thickness: number;
   width: number | '100%';
   style: 'solid' | 'dashed' | 'dotted';
+  align?: TextAlign;
   padding: Spacing;
   marginBottom: number;
 }
@@ -124,7 +148,7 @@ export interface ColumnsBlockProps {
 /**
  * スペーサーブロックのプロパティ
  */
-export interface SpacerBlockProps {
+export interface SpacerBlockProps extends ResponsiveSettings {
   height: number;
   mobileHeight: number;
   marginBottom: number;
@@ -142,20 +166,23 @@ export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 /**
  * 見出しブロックのプロパティ
  */
-export interface HeadingBlockProps {
+export interface HeadingBlockProps extends ResponsiveSettings {
   content: string;
   level: HeadingLevel;
   fontSize: number;
   fontFamily: string;
+  fontWeight?: string;
   textColor: string;
   textAlign: TextAlign;
+  lineHeight?: number;
+  letterSpacing?: number;
   padding: Spacing;
 }
 
 /**
  * HTMLブロックのプロパティ
  */
-export interface HtmlBlockProps {
+export interface HtmlBlockProps extends ResponsiveSettings {
   htmlContent: string;
   padding: Spacing;
 }
@@ -182,12 +209,18 @@ export interface SocialLink {
 }
 
 /**
+ * アイコンスタイル
+ */
+export type IconStyle = 'circle' | 'square' | 'rounded' | 'none';
+
+/**
  * ソーシャルブロックのプロパティ
  */
-export interface SocialBlockProps {
+export interface SocialBlockProps extends ResponsiveSettings {
   links: SocialLink[];
   iconSize: number;
   iconColor: string;
+  iconStyle?: IconStyle;
   gap: number;
   align: TextAlign;
   padding: Spacing;
@@ -199,17 +232,28 @@ export interface SocialBlockProps {
 export interface MenuItem {
   label: string;
   url: string;
+  target?: LinkTarget;
 }
+
+/**
+ * メニューレイアウト
+ */
+export type MenuLayout = 'horizontal' | 'vertical';
 
 /**
  * メニューブロックのプロパティ
  */
-export interface MenuBlockProps {
+export interface MenuBlockProps extends ResponsiveSettings {
   items: MenuItem[];
   fontSize: number;
   fontFamily: string;
+  fontWeight?: string;
+  letterSpacing?: number;
   textColor: string;
+  linkColor?: string;
   separator: string;
+  layout?: MenuLayout;
+  itemPadding?: Spacing;
   align: TextAlign;
   padding: Spacing;
 }

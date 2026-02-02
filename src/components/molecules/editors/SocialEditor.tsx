@@ -8,6 +8,7 @@ import {
   NumberInput,
   ColorPicker,
   TextInput,
+  ResponsiveToggle,
 } from '../PropertyEditor';
 
 export interface SocialEditorProps {
@@ -23,6 +24,13 @@ const PLATFORMS: { value: SocialPlatform; label: string }[] = [
   { value: 'youtube', label: 'YouTube' },
   { value: 'tiktok', label: 'TikTok' },
   { value: 'pinterest', label: 'Pinterest' },
+];
+
+const ICON_STYLES = [
+  { value: 'circle', label: 'Circle' },
+  { value: 'square', label: 'Square' },
+  { value: 'rounded', label: 'Rounded' },
+  { value: 'none', label: 'None' },
 ];
 
 export function SocialEditor({ props, onChange }: SocialEditorProps) {
@@ -52,7 +60,21 @@ export function SocialEditor({ props, onChange }: SocialEditorProps) {
 
   return (
     <>
-      <PropertySection title="Social Links">
+      <PropertySection title="Icons">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-gray-600">Icon Style</span>
+          <select
+            value={props.iconStyle ?? 'circle'}
+            onChange={(e) => onChange({ iconStyle: e.target.value as SocialBlockProps['iconStyle'] })}
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {ICON_STYLES.map((style) => (
+              <option key={style.value} value={style.value}>
+                {style.label}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="flex flex-col gap-3">
           {props.links.map((link, index) => (
             <div key={index} className="p-3 bg-gray-50 rounded-lg">
@@ -120,18 +142,18 @@ export function SocialEditor({ props, onChange }: SocialEditorProps) {
           max={64}
           unit="px"
         />
-        <ColorPicker
-          label="Icon Color"
-          value={props.iconColor}
-          onChange={(value) => onChange({ iconColor: value })}
-        />
         <NumberInput
-          label="Gap Between Icons"
+          label="Icon Spacing"
           value={props.gap}
           onChange={(value) => onChange({ gap: value })}
           min={0}
           max={48}
           unit="px"
+        />
+        <ColorPicker
+          label="Icon Color"
+          value={props.iconColor}
+          onChange={(value) => onChange({ iconColor: value })}
         />
         <AlignEditor
           label="Alignment"
@@ -139,11 +161,19 @@ export function SocialEditor({ props, onChange }: SocialEditorProps) {
           onChange={(value) => onChange({ align: value })}
         />
       </PropertySection>
-      <PropertySection title="Spacing">
+      <PropertySection title="General">
         <SpacingEditor
           label="Padding"
           value={props.padding}
           onChange={(value) => onChange({ padding: value })}
+        />
+      </PropertySection>
+      <PropertySection title="Responsive Design">
+        <ResponsiveToggle
+          hideOnDesktop={props.hideOnDesktop ?? false}
+          hideOnMobile={props.hideOnMobile ?? false}
+          onChangeDesktop={(value) => onChange({ hideOnDesktop: value })}
+          onChangeMobile={(value) => onChange({ hideOnMobile: value })}
         />
       </PropertySection>
     </>

@@ -1,6 +1,6 @@
 'use client';
 
-import type { MenuBlockProps, MenuItem } from '@/types';
+import type { MenuBlockProps, MenuItem, LinkTarget } from '@/types';
 import {
   PropertySection,
   SpacingEditor,
@@ -8,6 +8,11 @@ import {
   TextInput,
   NumberInput,
   ColorPicker,
+  FontFamilySelect,
+  FontWeightSelect,
+  LetterSpacingInput,
+  LinkTargetSelect,
+  ResponsiveToggle,
 } from '../PropertyEditor';
 
 export interface MenuEditorProps {
@@ -89,6 +94,10 @@ export function MenuEditor({ props, onChange }: MenuEditorProps) {
                   value={item.url}
                   onChange={(value) => handleItemChange(index, { url: value })}
                 />
+                <LinkTargetSelect
+                  value={item.target ?? '_self'}
+                  onChange={(value) => handleItemChange(index, { target: value as LinkTarget })}
+                />
               </div>
             </div>
           ))}
@@ -101,7 +110,15 @@ export function MenuEditor({ props, onChange }: MenuEditorProps) {
           </button>
         </div>
       </PropertySection>
-      <PropertySection title="Typography">
+      <PropertySection title="Styles">
+        <FontFamilySelect
+          value={props.fontFamily}
+          onChange={(value) => onChange({ fontFamily: value })}
+        />
+        <FontWeightSelect
+          value={props.fontWeight ?? '400'}
+          onChange={(value) => onChange({ fontWeight: value })}
+        />
         <NumberInput
           label="Font Size"
           value={props.fontSize}
@@ -110,11 +127,41 @@ export function MenuEditor({ props, onChange }: MenuEditorProps) {
           max={24}
           unit="px"
         />
+        <LetterSpacingInput
+          value={props.letterSpacing ?? 0}
+          onChange={(value) => onChange({ letterSpacing: value })}
+        />
         <ColorPicker
           label="Text Color"
           value={props.textColor}
           onChange={(value) => onChange({ textColor: value })}
         />
+        <ColorPicker
+          label="Link Color"
+          value={props.linkColor ?? props.textColor}
+          onChange={(value) => onChange({ linkColor: value })}
+        />
+      </PropertySection>
+      <PropertySection title="Layout">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-gray-600">Layout</span>
+          <div className="flex gap-1">
+            {(['horizontal', 'vertical'] as const).map((layout) => (
+              <button
+                key={layout}
+                type="button"
+                onClick={() => onChange({ layout })}
+                className={`flex-1 py-2 text-sm rounded-md border capitalize ${
+                  (props.layout ?? 'horizontal') === layout
+                    ? 'bg-blue-500 text-white border-blue-500'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {layout}
+              </button>
+            ))}
+          </div>
+        </div>
         <TextInput
           label="Separator"
           value={props.separator}
@@ -126,11 +173,19 @@ export function MenuEditor({ props, onChange }: MenuEditorProps) {
           onChange={(value) => onChange({ align: value })}
         />
       </PropertySection>
-      <PropertySection title="Spacing">
+      <PropertySection title="General">
         <SpacingEditor
           label="Padding"
           value={props.padding}
           onChange={(value) => onChange({ padding: value })}
+        />
+      </PropertySection>
+      <PropertySection title="Responsive Design">
+        <ResponsiveToggle
+          hideOnDesktop={props.hideOnDesktop ?? false}
+          hideOnMobile={props.hideOnMobile ?? false}
+          onChangeDesktop={(value) => onChange({ hideOnDesktop: value })}
+          onChangeMobile={(value) => onChange({ hideOnMobile: value })}
         />
       </PropertySection>
     </>

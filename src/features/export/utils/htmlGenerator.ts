@@ -15,6 +15,8 @@ import type {
   ButtonBlock,
   DividerBlock,
   SpacerBlock,
+  VideoBlock,
+  TimerBlock,
   GlobalStyles,
 } from '@/types';
 import { isSectionBlock, isColumnsBlock } from '@/types';
@@ -82,6 +84,10 @@ export function generateBlockHtml(block: Block, globalStyles: GlobalStyles): str
       return generateDividerHtml(block as DividerBlock);
     case 'spacer':
       return generateSpacerHtml(block as SpacerBlock);
+    case 'video':
+      return generateVideoHtml(block as VideoBlock);
+    case 'timer':
+      return generateTimerHtml(block as TimerBlock);
     default:
       return `<!-- Unknown block type: ${(block as Block).type} -->`;
   }
@@ -267,6 +273,126 @@ function generateSpacerHtml(block: SpacerBlock): string {
   return `<tr>
   <td style="height: ${height}px; line-height: ${height}px; font-size: 1px;">
     &nbsp;
+  </td>
+</tr>`;
+}
+
+/**
+ * Video block - thumbnail with play button overlay and link
+ */
+function generateVideoHtml(block: VideoBlock): string {
+  const { props } = block;
+  const width = typeof props.width === 'number' ? `${props.width}px` : props.width;
+
+  const tdStyles = generateInlineStyles({
+    textAlign: props.align,
+    padding: formatPadding(props.padding),
+  });
+
+  const imgStyles = generateInlineStyles({
+    display: 'block',
+    maxWidth: '100%',
+    width,
+    borderRadius: props.borderRadius > 0 ? `${props.borderRadius}px` : undefined,
+  });
+
+  // If no thumbnail, show placeholder text
+  if (!props.thumbnailSrc) {
+    return `<tr>
+  <td style="${tdStyles}">
+    <div style="background-color: #e5e7eb; padding: 40px; text-align: center; color: #9ca3af; border-radius: ${props.borderRadius}px;">
+      Video Thumbnail
+    </div>
+  </td>
+</tr>`;
+  }
+
+  const img = `<img src="${escapeHtml(props.thumbnailSrc)}" alt="${escapeHtml(props.alt)}" style="${imgStyles}" />`;
+  const content = props.videoUrl
+    ? `<a href="${escapeHtml(props.videoUrl)}" target="_blank" style="display: block; position: relative;">
+        ${img}
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px; background-color: ${props.playButtonColor}CC; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <div style="width: 0; height: 0; border-left: 20px solid white; border-top: 12px solid transparent; border-bottom: 12px solid transparent; margin-left: 4px;"></div>
+        </div>
+      </a>`
+    : img;
+
+  return `<tr>
+  <td style="${tdStyles}">
+    ${content}
+  </td>
+</tr>`;
+}
+
+/**
+ * Timer block - static countdown display
+ * Note: Real-time countdown requires JavaScript which is not supported in most email clients.
+ * This generates a static representation of the countdown.
+ */
+function generateTimerHtml(block: TimerBlock): string {
+  const { props } = block;
+
+  const tdStyles = generateInlineStyles({
+    textAlign: 'center',
+    padding: formatPadding(props.padding),
+    backgroundColor: props.backgroundColor === 'transparent' ? undefined : props.backgroundColor,
+  });
+
+  const textStyles = generateInlineStyles({
+    fontSize: `${props.fontSize}px`,
+    color: props.textColor,
+    fontWeight: 'bold',
+  });
+
+  const labelStyles = generateInlineStyles({
+    fontSize: `${Math.max(props.fontSize * 0.5, 10)}px`,
+    color: props.textColor,
+    opacity: '0.7',
+  });
+
+  // Calculate time remaining at export time
+  const end = new Date(props.endDate).getTime();
+  const now = Date.now();
+  const diff = end - now;
+
+  if (diff <= 0) {
+    return `<tr>
+  <td style="${tdStyles}">
+    <span style="${textStyles}">${escapeHtml(props.expiredMessage)}</span>
+  </td>
+</tr>`;
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+  const formatNum = (n: number) => n.toString().padStart(2, '0');
+
+  const parts: string[] = [];
+  if (props.showDays) parts.push(`<td style="text-align: center; padding: 0 8px;"><span style="${textStyles}">${formatNum(days)}</span><br/><span style="${labelStyles}">Days</span></td>`);
+  if (props.showHours) parts.push(`<td style="text-align: center; padding: 0 8px;"><span style="${textStyles}">${formatNum(hours)}</span><br/><span style="${labelStyles}">Hours</span></td>`);
+  if (props.showMinutes) parts.push(`<td style="text-align: center; padding: 0 8px;"><span style="${textStyles}">${formatNum(minutes)}</span><br/><span style="${labelStyles}">Minutes</span></td>`);
+  if (props.showSeconds) parts.push(`<td style="text-align: center; padding: 0 8px;"><span style="${textStyles}">${formatNum(seconds)}</span><br/><span style="${labelStyles}">Seconds</span></td>`);
+
+  const separatorStyle = `style="${textStyles}"`;
+  const separators = parts.map((_, i) => i < parts.length - 1 ? `<td ${separatorStyle}>:</td>` : '').filter(Boolean);
+
+  // Interleave parts with separators
+  const cells: string[] = [];
+  parts.forEach((part, i) => {
+    cells.push(part);
+    if (separators[i]) cells.push(separators[i]);
+  });
+
+  return `<tr>
+  <td style="${tdStyles}">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+      <tr>
+        ${cells.join('\n        ')}
+      </tr>
+    </table>
   </td>
 </tr>`;
 }

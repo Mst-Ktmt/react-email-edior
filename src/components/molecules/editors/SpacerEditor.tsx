@@ -1,7 +1,11 @@
 'use client';
 
 import type { SpacerBlockProps } from '@/types';
-import { PropertySection, NumberInput } from '../PropertyEditor';
+import {
+  PropertySection,
+  NumberInput,
+  ResponsiveToggle,
+} from '../PropertyEditor';
 
 export interface SpacerEditorProps {
   props: SpacerBlockProps;
@@ -11,7 +15,7 @@ export interface SpacerEditorProps {
 export function SpacerEditor({ props, onChange }: SpacerEditorProps) {
   return (
     <>
-      <PropertySection title="Spacer">
+      <PropertySection title="Size">
         <NumberInput
           label="Height"
           value={props.height}
@@ -20,8 +24,16 @@ export function SpacerEditor({ props, onChange }: SpacerEditorProps) {
           max={200}
           unit="px"
         />
+        <NumberInput
+          label="Mobile Height"
+          value={props.mobileHeight}
+          onChange={(value) => onChange({ mobileHeight: value })}
+          min={0}
+          max={200}
+          unit="px"
+        />
       </PropertySection>
-      <PropertySection title="Spacing">
+      <PropertySection title="General">
         <NumberInput
           label="Margin Bottom"
           value={props.marginBottom ?? 0}
@@ -29,6 +41,14 @@ export function SpacerEditor({ props, onChange }: SpacerEditorProps) {
           min={0}
           max={200}
           unit="px"
+        />
+      </PropertySection>
+      <PropertySection title="Responsive Design">
+        <ResponsiveToggle
+          hideOnDesktop={props.hideOnDesktop ?? false}
+          hideOnMobile={props.hideOnMobile ?? false}
+          onChangeDesktop={(value) => onChange({ hideOnDesktop: value })}
+          onChangeMobile={(value) => onChange({ hideOnMobile: value })}
         />
       </PropertySection>
     </>

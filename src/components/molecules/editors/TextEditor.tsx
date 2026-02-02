@@ -8,6 +8,10 @@ import {
   TextInput,
   NumberInput,
   ColorPicker,
+  FontFamilySelect,
+  FontWeightSelect,
+  LetterSpacingInput,
+  ResponsiveToggle,
 } from '../PropertyEditor';
 
 export interface TextEditorProps {
@@ -26,6 +30,14 @@ export function TextEditor({ props, onChange }: TextEditorProps) {
         />
       </PropertySection>
       <PropertySection title="Typography">
+        <FontFamilySelect
+          value={props.fontFamily}
+          onChange={(value) => onChange({ fontFamily: value })}
+        />
+        <FontWeightSelect
+          value={props.fontWeight ?? '400'}
+          onChange={(value) => onChange({ fontWeight: value })}
+        />
         <NumberInput
           label="Font Size"
           value={props.fontSize}
@@ -41,6 +53,10 @@ export function TextEditor({ props, onChange }: TextEditorProps) {
           min={1}
           max={3}
           step={0.1}
+        />
+        <LetterSpacingInput
+          value={props.letterSpacing ?? 0}
+          onChange={(value) => onChange({ letterSpacing: value })}
         />
         <ColorPicker
           label="Text Color"
@@ -73,6 +89,14 @@ export function TextEditor({ props, onChange }: TextEditorProps) {
           min={0}
           max={200}
           unit="px"
+        />
+      </PropertySection>
+      <PropertySection title="Responsive Design">
+        <ResponsiveToggle
+          hideOnDesktop={props.hideOnDesktop ?? false}
+          hideOnMobile={props.hideOnMobile ?? false}
+          onChangeDesktop={(value) => onChange({ hideOnDesktop: value })}
+          onChangeMobile={(value) => onChange({ hideOnMobile: value })}
         />
       </PropertySection>
     </>

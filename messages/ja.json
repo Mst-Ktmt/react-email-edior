@@ -22,7 +22,9 @@
     "heading": "見出し",
     "html": "HTML",
     "social": "ソーシャル",
-    "menu": "メニュー"
+    "menu": "メニュー",
+    "video": "ビデオ",
+    "timer": "タイマー"
   },
   "PropertyPanel": {
     "title": "プロパティ",

@@ -10,23 +10,38 @@ import type { SectionBlock } from './block';
 // ============================================================
 
 /**
+ * コンテンツ配置
+ */
+export type ContentAlignment = 'left' | 'center';
+
+/**
  * メール全体に適用されるグローバルスタイル
  */
 export interface GlobalStyles {
   /** 基本フォントファミリー */
   fontFamily: string;
+  /** 基本フォントウェイト */
+  fontWeight?: string;
   /** コンテンツ幅（px） */
   contentWidth: number;
+  /** コンテンツ配置 */
+  contentAlignment?: ContentAlignment;
   /** 背景色 */
   backgroundColor: string;
   /** リンクカラー */
   linkColor: string;
+  /** リンク下線 */
+  linkUnderline?: boolean;
   /** 基本テキストカラー */
   textColor: string;
   /** 基本フォントサイズ（px） */
   baseFontSize: number;
   /** 基本行間 */
   baseLineHeight: number;
+  /** プリヘッダーテキスト（受信箱プレビュー用） */
+  preheaderText?: string;
+  /** HTMLタイトル（アクセシビリティ用） */
+  htmlTitle?: string;
 }
 
 // ============================================================

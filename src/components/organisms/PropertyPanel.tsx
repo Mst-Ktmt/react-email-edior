@@ -13,6 +13,10 @@ import type {
   HtmlBlockProps,
   SocialBlockProps,
   MenuBlockProps,
+  VideoBlockProps,
+  TimerBlockProps,
+  ColumnsBlockProps,
+  SectionBlockProps,
   GlobalStyles,
 } from '@/types';
 import { isSectionBlock } from '@/types/block';
@@ -28,12 +32,12 @@ import {
   HtmlEditor,
   SocialEditor,
   MenuEditor,
+  VideoEditor,
+  TimerEditor,
+  ColumnsEditor,
+  SectionEditor,
+  BodySettingsEditor,
 } from '../molecules/editors';
-import {
-  PropertySection,
-  NumberInput,
-  ColorPicker,
-} from '../molecules/PropertyEditor';
 
 // ========================================
 // Tab Types
@@ -41,98 +45,6 @@ import {
 
 type TabType = 'blocks' | 'body';
 
-// ========================================
-// Font Family Options
-// ========================================
-
-const FONT_FAMILY_OPTIONS = [
-  { value: 'Arial, Helvetica, sans-serif', label: 'Arial' },
-  { value: 'Georgia, Times, serif', label: 'Georgia' },
-  { value: 'Verdana, Geneva, sans-serif', label: 'Verdana' },
-  { value: 'Tahoma, Geneva, sans-serif', label: 'Tahoma' },
-  { value: 'Trebuchet MS, sans-serif', label: 'Trebuchet MS' },
-  { value: 'Times New Roman, Times, serif', label: 'Times New Roman' },
-  { value: 'Courier New, Courier, monospace', label: 'Courier New' },
-];
-
-// ========================================
-// BodyEditor Component
-// ========================================
-
-interface BodyEditorProps {
-  globalStyles: GlobalStyles;
-  onChange: (updates: Partial<GlobalStyles>) => void;
-}
-
-function BodyEditor({ globalStyles, onChange }: BodyEditorProps) {
-  const t = useTranslations('PropertyPanel');
-
-  return (
-    <>
-      <PropertySection title={t('background')}>
-        <ColorPicker
-          label={t('backgroundColor')}
-          value={globalStyles.backgroundColor}
-          onChange={(value) => onChange({ backgroundColor: value })}
-        />
-      </PropertySection>
-      <PropertySection title={t('contentWidth')}>
-        <NumberInput
-          label={t('width')}
-          value={globalStyles.contentWidth}
-          onChange={(value) => onChange({ contentWidth: value })}
-          min={320}
-          max={800}
-          unit="px"
-        />
-      </PropertySection>
-      <PropertySection title={t('typography')}>
-        <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-gray-600">{t('fontFamily')}</span>
-          <select
-            value={globalStyles.fontFamily}
-            onChange={(e) => onChange({ fontFamily: e.target.value })}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            {FONT_FAMILY_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <NumberInput
-          label={t('baseFontSize')}
-          value={globalStyles.baseFontSize}
-          onChange={(value) => onChange({ baseFontSize: value })}
-          min={10}
-          max={24}
-          unit="px"
-        />
-        <NumberInput
-          label={t('baseLineHeight')}
-          value={globalStyles.baseLineHeight}
-          onChange={(value) => onChange({ baseLineHeight: value })}
-          min={1}
-          max={3}
-          step={0.1}
-        />
-        <ColorPicker
-          label={t('textColor')}
-          value={globalStyles.textColor}
-          onChange={(value) => onChange({ textColor: value })}
-        />
-      </PropertySection>
-      <PropertySection title={t('link')}>
-        <ColorPicker
-          label={t('linkColor')}
-          value={globalStyles.linkColor}
-          onChange={(value) => onChange({ linkColor: value })}
-        />
-      </PropertySection>
-    </>
-  );
-}
 
 // ========================================
 // Helper Functions
@@ -293,6 +205,34 @@ export function PropertyPanel({ className = '' }: PropertyPanelProps) {
             onChange={handlePropsChange}
           />
         );
+      case 'columns':
+        return (
+          <ColumnsEditor
+            props={selectedBlock.props as unknown as ColumnsBlockProps}
+            onChange={handlePropsChange}
+          />
+        );
+      case 'section':
+        return (
+          <SectionEditor
+            props={selectedBlock.props as unknown as SectionBlockProps}
+            onChange={handlePropsChange}
+          />
+        );
+      case 'video':
+        return (
+          <VideoEditor
+            props={selectedBlock.props as unknown as VideoBlockProps}
+            onChange={handlePropsChange}
+          />
+        );
+      case 'timer':
+        return (
+          <TimerEditor
+            props={selectedBlock.props as unknown as TimerBlockProps}
+            onChange={handlePropsChange}
+          />
+        );
       default:
         return (
           <div className="p-4 text-gray-500 text-sm">
@@ -366,7 +306,7 @@ export function PropertyPanel({ className = '' }: PropertyPanelProps) {
       ) : (
         <div className="overflow-y-auto h-[calc(100%-48px)]">
           {document ? (
-            <BodyEditor
+            <BodySettingsEditor
               globalStyles={document.globalStyles}
               onChange={handleGlobalStylesChange}
             />
