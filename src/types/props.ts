@@ -20,7 +20,7 @@ export interface Spacing {
 /**
  * テキスト配置
  */
-export type TextAlign = 'left' | 'center' | 'right';
+export type TextAlign = 'left' | 'center' | 'right' | 'justify';
 
 /**
  * ボタン幅の指定方法
@@ -177,6 +177,8 @@ export interface HeadingBlockProps extends ResponsiveSettings {
   lineHeight?: number;
   letterSpacing?: number;
   padding: Spacing;
+  backgroundColor?: string;
+  marginBottom?: number;
 }
 
 /**
@@ -261,7 +263,7 @@ export interface MenuBlockProps extends ResponsiveSettings {
 /**
  * ビデオブロックのプロパティ
  */
-export interface VideoBlockProps {
+export interface VideoBlockProps extends ResponsiveSettings {
   videoUrl: string;
   thumbnailSrc: string;
   alt: string;
@@ -275,7 +277,7 @@ export interface VideoBlockProps {
 /**
  * タイマーブロックのプロパティ
  */
-export interface TimerBlockProps {
+export interface TimerBlockProps extends ResponsiveSettings {
   endDate: string;
   showDays: boolean;
   showHours: boolean;

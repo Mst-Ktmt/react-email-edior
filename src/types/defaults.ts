@@ -119,6 +119,8 @@ export const defaultHeadingBlockProps: HeadingBlockProps = {
   textColor: '#333333',
   textAlign: 'left',
   padding: { top: 10, right: 10, bottom: 10, left: 10 },
+  backgroundColor: 'transparent',
+  marginBottom: 0,
 };
 
 export const defaultHtmlBlockProps: HtmlBlockProps = {

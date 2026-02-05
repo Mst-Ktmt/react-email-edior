@@ -97,11 +97,26 @@ export function HeadingEditor({ props, onChange }: HeadingEditorProps) {
           onChange={(value) => onChange({ textAlign: value })}
         />
       </PropertySection>
+      <PropertySection title="Background">
+        <ColorPicker
+          label="Background Color"
+          value={props.backgroundColor ?? 'transparent'}
+          onChange={(value) => onChange({ backgroundColor: value })}
+        />
+      </PropertySection>
       <PropertySection title="Spacing">
         <SpacingEditor
           label="Padding"
           value={props.padding}
           onChange={(value) => onChange({ padding: value })}
+        />
+        <NumberInput
+          label="Margin Bottom"
+          value={props.marginBottom ?? 0}
+          onChange={(value) => onChange({ marginBottom: value })}
+          min={0}
+          max={200}
+          unit="px"
         />
       </PropertySection>
       <PropertySection title="Responsive Design">

@@ -11,6 +11,7 @@ import type {
   SectionBlock,
   ColumnsBlock,
   TextBlock,
+  HeadingBlock,
   ImageBlock,
   ButtonBlock,
   DividerBlock,
@@ -38,6 +39,27 @@ export function generateEmailHtml(document: EmailDocument): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>${escapeHtml(document.name)}</title>
+
+  <!-- Responsive Styles -->
+  <!--[if !mso]><!-->
+  <style>
+    @media only screen and (min-width: 768px) {
+      .hide-on-desktop {
+        display: none !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+      }
+    }
+    @media only screen and (max-width: 767px) {
+      .hide-on-mobile {
+        display: none !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+      }
+    }
+  </style>
+  <!--<![endif]-->
+
   <!--[if mso]>
   <noscript>
     <xml>
@@ -76,6 +98,8 @@ export function generateBlockHtml(block: Block, globalStyles: GlobalStyles): str
   switch (block.type) {
     case 'text':
       return generateTextHtml(block as TextBlock, globalStyles);
+    case 'heading':
+      return generateHeadingHtml(block as HeadingBlock, globalStyles);
     case 'image':
       return generateImageHtml(block as ImageBlock);
     case 'button':
@@ -151,6 +175,36 @@ function generateColumnsHtml(block: ColumnsBlock, globalStyles: GlobalStyles): s
 }
 
 /**
+ * Heading block
+ */
+function generateHeadingHtml(block: HeadingBlock, globalStyles: GlobalStyles): string {
+  const { props } = block;
+
+  const styles = generateInlineStyles({
+    fontSize: `${props.fontSize}px`,
+    fontFamily: props.fontFamily || globalStyles.fontFamily,
+    fontWeight: props.fontWeight ?? '700',
+    color: props.textColor || globalStyles.textColor,
+    textAlign: props.textAlign,
+    lineHeight: String(props.lineHeight ?? 1.2),
+    letterSpacing: props.letterSpacing ? `${props.letterSpacing}px` : undefined,
+    padding: formatPadding(props.padding),
+    backgroundColor: props.backgroundColor || 'transparent',
+    margin: '0',
+  });
+
+  const marginStyle = props.marginBottom ? `margin-bottom: ${props.marginBottom}px;` : '';
+
+  return `<tr${getResponsiveClasses(props)}>
+  <td style="${marginStyle}">
+    <h${props.level} style="${styles}">
+      ${props.content}
+    </h${props.level}>
+  </td>
+</tr>`;
+}
+
+/**
  * Text block
  */
 function generateTextHtml(block: TextBlock, globalStyles: GlobalStyles): string {
@@ -158,14 +212,16 @@ function generateTextHtml(block: TextBlock, globalStyles: GlobalStyles): string 
   const styles = generateInlineStyles({
     fontSize: `${props.fontSize}px`,
     fontFamily: props.fontFamily || globalStyles.fontFamily,
+    fontWeight: props.fontWeight,
     color: props.textColor || globalStyles.textColor,
     textAlign: props.textAlign,
     lineHeight: String(props.lineHeight),
+    letterSpacing: props.letterSpacing ? `${props.letterSpacing}px` : undefined,
     padding: formatPadding(props.padding),
     backgroundColor: props.backgroundColor || 'transparent',
   });
 
-  return `<tr>
+  return `<tr${getResponsiveClasses(props)}>
   <td style="${styles}">
     ${props.content}
   </td>
@@ -192,7 +248,7 @@ function generateImageHtml(block: ImageBlock): string {
   const img = `<img src="${escapeHtml(props.src)}" alt="${escapeHtml(props.alt)}" style="${imgStyles}" />`;
   const content = props.linkUrl ? `<a href="${escapeHtml(props.linkUrl)}" target="_blank">${img}</a>` : img;
 
-  return `<tr>
+  return `<tr${getResponsiveClasses(props)}>
   <td style="${tdStyles}">
     ${content}
   </td>
@@ -224,7 +280,7 @@ function generateButtonHtml(block: ButtonBlock, globalStyles: GlobalStyles): str
     padding: '10px 0',
   });
 
-  return `<tr>
+  return `<tr${getResponsiveClasses(props)}>
   <td style="${tdStyles}">
     <!--[if mso]>
     <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${escapeHtml(props.linkUrl)}" style="height:auto;v-text-anchor:middle;width:${buttonWidth};" arcsize="10%" strokecolor="${props.backgroundColor || globalStyles.linkColor}" fillcolor="${props.backgroundColor || globalStyles.linkColor}">
@@ -256,7 +312,7 @@ function generateDividerHtml(block: DividerBlock): string {
     width,
   });
 
-  return `<tr>
+  return `<tr${getResponsiveClasses(props)}>
   <td style="${generateInlineStyles({ padding: formatPadding(props.padding) })}">
     <hr style="${hrStyles}" />
   </td>
@@ -270,7 +326,7 @@ function generateSpacerHtml(block: SpacerBlock): string {
   const { props } = block;
   const height = props.height;
 
-  return `<tr>
+  return `<tr${getResponsiveClasses(props)}>
   <td style="height: ${height}px; line-height: ${height}px; font-size: 1px;">
     &nbsp;
   </td>
@@ -317,7 +373,7 @@ function generateVideoHtml(block: VideoBlock): string {
       </a>`
     : img;
 
-  return `<tr>
+  return `<tr${getResponsiveClasses(props)}>
   <td style="${tdStyles}">
     ${content}
   </td>
@@ -402,6 +458,16 @@ function generateTimerHtml(block: TimerBlock): string {
  */
 function formatPadding(padding: { top: number; right: number; bottom: number; left: number }): string {
   return `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`;
+}
+
+/**
+ * Generate responsive class names from block props
+ */
+function getResponsiveClasses(props: { hideOnDesktop?: boolean; hideOnMobile?: boolean }): string {
+  const classes: string[] = [];
+  if (props.hideOnDesktop) classes.push('hide-on-desktop');
+  if (props.hideOnMobile) classes.push('hide-on-mobile');
+  return classes.length > 0 ? ` class="${classes.join(' ')}"` : '';
 }
 
 /**

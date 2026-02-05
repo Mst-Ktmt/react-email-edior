@@ -39,6 +39,7 @@ function BlockRenderer({
   onUpdateBlockContent,
   onUpdateBlockText,
   isPreviewMode = false,
+  isMobile = false,
 }: {
   block: Block;
   selectedBlockId: string | null;
@@ -46,10 +47,18 @@ function BlockRenderer({
   onUpdateBlockContent: (blockId: string, content: string, currentProps: Record<string, unknown>) => void;
   onUpdateBlockText: (blockId: string, text: string, currentProps: Record<string, unknown>) => void;
   isPreviewMode?: boolean;
+  isMobile?: boolean;
 }): React.ReactNode {
   // プレビューモード時は選択状態を無効化
   const isSelected = isPreviewMode ? false : block.id === selectedBlockId;
   const handleClick = isPreviewMode ? undefined : () => onSelectBlock(block.id);
+
+  // レスポンシブ設定チェック
+  if (isPreviewMode) {
+    const blockProps = block.props as { hideOnDesktop?: boolean; hideOnMobile?: boolean };
+    if (isMobile && blockProps.hideOnMobile) return null;
+    if (!isMobile && blockProps.hideOnDesktop) return null;
+  }
 
   switch (block.type) {
     case 'text':
@@ -122,6 +131,7 @@ function BlockRenderer({
                   onUpdateBlockContent={onUpdateBlockContent}
                   onUpdateBlockText={onUpdateBlockText}
                   isPreviewMode={isPreviewMode}
+                  isMobile={isMobile}
                 />
               ) : (
                 <DraggableBlock
@@ -136,6 +146,7 @@ function BlockRenderer({
                     onUpdateBlockContent={onUpdateBlockContent}
                     onUpdateBlockText={onUpdateBlockText}
                     isPreviewMode={isPreviewMode}
+                    isMobile={isMobile}
                   />
                 </DraggableBlock>
               )
@@ -161,6 +172,7 @@ function BlockRenderer({
                   onUpdateBlockContent={onUpdateBlockContent}
                   onUpdateBlockText={onUpdateBlockText}
                   isPreviewMode={isPreviewMode}
+                  isMobile={isMobile}
                 />
               ) : (
                 <DraggableBlock
@@ -175,6 +187,7 @@ function BlockRenderer({
                     onUpdateBlockContent={onUpdateBlockContent}
                     onUpdateBlockText={onUpdateBlockText}
                     isPreviewMode={isPreviewMode}
+                    isMobile={isMobile}
                   />
                 </DraggableBlock>
               )
@@ -321,6 +334,7 @@ export function Canvas({ className = '' }: CanvasProps) {
                     onUpdateBlockContent={() => {}}
                     onUpdateBlockText={() => {}}
                     isPreviewMode={true}
+                    isMobile={isMobile}
                   />
                 ))}
               </div>

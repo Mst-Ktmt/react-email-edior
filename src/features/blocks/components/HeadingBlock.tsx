@@ -117,8 +117,11 @@ export function HeadingBlock({ props, blockId, isSelected, onClick, onUpdateCont
   const headingStyle = {
     fontSize: `${fontSize}px`,
     fontFamily,
+    fontWeight: props.fontWeight ?? '700',
     color: textColor,
     textAlign,
+    lineHeight: props.lineHeight ?? 1.2,
+    letterSpacing: props.letterSpacing ? `${props.letterSpacing}px` : undefined,
     margin: 0,
   };
 
@@ -131,7 +134,11 @@ export function HeadingBlock({ props, blockId, isSelected, onClick, onUpdateCont
       className={`relative cursor-pointer transition-all ${
         isSelected ? 'ring-2 ring-blue-500' : ''
       } ${isHovered && !isSelected ? 'ring-2 ring-blue-300' : ''}`}
-      style={{ padding: paddingStyle }}
+      style={{
+        padding: paddingStyle,
+        backgroundColor: props.backgroundColor || 'transparent',
+        marginBottom: `${props.marginBottom ?? 0}px`,
+      }}
       data-block-id={blockId}
     >
       {isHovered && blockId && (

@@ -15,7 +15,7 @@ interface Spacing {
   left: number;
 }
 
-type AlignValue = 'left' | 'center' | 'right';
+type AlignValue = 'left' | 'center' | 'right' | 'justify';
 
 // ========================================
 // SpacingEditor
@@ -84,6 +84,7 @@ export function AlignEditor({ label, value, onChange }: AlignEditorProps) {
     { value: 'left', icon: '⬅' },
     { value: 'center', icon: '⬌' },
     { value: 'right', icon: '➡' },
+    { value: 'justify', icon: '⬍' },
   ];
 
   return (
