@@ -76,6 +76,8 @@
   },
   "KeyboardShortcuts": {
     "title": "Keyboard Shortcuts",
+    "copyBlock": "Copy Block",
+    "pasteBlock": "Paste Block",
     "undo": "Undo",
     "redo": "Redo",
     "redoAlt": "Redo (Windows)",

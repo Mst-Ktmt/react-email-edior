@@ -8,6 +8,7 @@ import { KeyboardShortcutsHelp } from '../molecules/KeyboardShortcutsHelp';
 import { DndProvider } from '@/features/editor/components/DndProvider';
 import { useDocumentStore } from '@/stores';
 import { useHistory } from '@/hooks/useHistory';
+import { useClipboard } from '@/hooks/useClipboard';
 import { createEmptyDocument } from '@/types/document';
 import type { EmailDocument } from '@/types';
 
@@ -31,6 +32,11 @@ export function EditorLayout({ header }: EditorLayoutProps) {
   useHistory({
     document,
     onDocumentChange: handleDocumentChange,
+    enableKeyboardShortcuts: true,
+  });
+
+  // Copy/Paste キーボードショートカット有効化
+  useClipboard({
     enableKeyboardShortcuts: true,
   });
 

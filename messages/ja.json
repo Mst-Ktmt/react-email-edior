@@ -76,6 +76,8 @@
   },
   "KeyboardShortcuts": {
     "title": "キーボードショートカット",
+    "copyBlock": "ブロックをコピー",
+    "pasteBlock": "ブロックを貼り付け",
     "undo": "元に戻す",
     "redo": "やり直す",
     "redoAlt": "やり直す（Windows）",

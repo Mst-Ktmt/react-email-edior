@@ -17,6 +17,8 @@ interface ShortcutItem {
 // ========================================
 
 const SHORTCUTS: ShortcutItem[] = [
+  { keys: ['⌘/Ctrl', 'C'], descriptionKey: 'copyBlock' },
+  { keys: ['⌘/Ctrl', 'V'], descriptionKey: 'pasteBlock' },
   { keys: ['⌘/Ctrl', 'Z'], descriptionKey: 'undo' },
   { keys: ['⌘/Ctrl', 'Shift', 'Z'], descriptionKey: 'redo' },
   { keys: ['⌘/Ctrl', 'Y'], descriptionKey: 'redoAlt' },
