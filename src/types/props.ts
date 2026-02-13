@@ -41,6 +41,83 @@ export interface ResponsiveSettings {
 }
 
 // ============================================================
+// Buttonブロック拡張型定義
+// ============================================================
+
+/**
+ * ホバー時スタイル
+ */
+export interface ButtonHoverStyle {
+  backgroundColor?: string;
+  textColor?: string;
+  borderColor?: string;
+  opacity?: number; // 0-1
+}
+
+/**
+ * Box Shadow設定
+ */
+export interface BoxShadow {
+  x: number;          // 水平オフセット（px）
+  y: number;          // 垂直オフセット（px）
+  blur: number;       // ぼかし半径（px）
+  spread: number;     // 広がり（px）
+  color: string;      // 影の色
+  inset?: boolean;    // 内側の影
+}
+
+/**
+ * アイコンタイプ
+ */
+export type IconType = 'svg' | 'emoji' | 'unicode';
+
+/**
+ * ボタンアイコン設定
+ */
+export interface ButtonIcon {
+  type: IconType;
+  content: string;        // SVGコード or 絵文字 or Unicode文字
+  position: 'left' | 'right';
+  spacing: number;        // アイコンとテキストの間隔（px）
+  size?: number;          // アイコンサイズ（px、SVGのみ）
+  color?: string;         // アイコン色（SVGのみ）
+}
+
+/**
+ * グラデーションタイプ
+ */
+export type GradientType = 'linear' | 'radial';
+
+/**
+ * グラデーションカラー
+ */
+export interface GradientColor {
+  color: string;
+  position: number; // 0-100
+}
+
+/**
+ * 背景グラデーション設定
+ */
+export interface BackgroundGradient {
+  type: GradientType;
+  angle?: number;           // linear用（0-360度）
+  colors: GradientColor[];  // 2色以上
+}
+
+/**
+ * トラッキングパラメータ設定
+ */
+export interface ButtonTracking {
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmTerm?: string;
+  utmContent?: string;
+  customParams?: Record<string, string>; // カスタムパラメータ
+}
+
+// ============================================================
 // 基本ブロックのプロパティ（Phase 1）
 // ============================================================
 
@@ -80,9 +157,14 @@ export interface ImageBlockProps extends ResponsiveSettings {
  * ボタンブロックのプロパティ
  */
 export interface ButtonBlockProps extends ResponsiveSettings {
+  // ========== 既存プロパティ ==========
+
+  // テキスト・リンク
   text: string;
   linkUrl: string;
   linkTarget?: LinkTarget;
+
+  // スタイル
   backgroundColor: string;
   textColor: string;
   fontSize: number;
@@ -90,14 +172,42 @@ export interface ButtonBlockProps extends ResponsiveSettings {
   fontWeight?: string;
   lineHeight?: number;
   letterSpacing?: number;
+
+  // レイアウト
   padding: Spacing;
+  align: TextAlign;
+  width: ButtonWidth;
+  marginBottom: number;
+
+  // ボーダー
   borderRadius: number;
   borderWidth?: number;
   borderColor?: string;
   borderStyle?: 'solid' | 'dashed' | 'dotted';
-  align: TextAlign;
-  width: ButtonWidth;
-  marginBottom: number;
+
+  // ========== 新規プロパティ（Phase 1-3） ==========
+
+  // ホバー時スタイル（Phase 1）
+  hoverStyle?: ButtonHoverStyle;
+
+  // Box Shadow（Phase 1）
+  boxShadow?: BoxShadow;
+
+  // 不透明度（Phase 1）
+  opacity?: number; // 0-1
+
+  // アイコン（Phase 2）
+  icon?: ButtonIcon;
+
+  // グラデーション背景（Phase 2）
+  backgroundGradient?: BackgroundGradient;
+
+  // 最小幅・最大幅（Phase 2）
+  minWidth?: number; // px
+  maxWidth?: number; // px
+
+  // トラッキング（Phase 3）
+  tracking?: ButtonTracking;
 }
 
 /**

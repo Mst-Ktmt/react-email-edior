@@ -40,6 +40,7 @@ export function ExportButton({ document, className = '', onExport }: ExportButto
       };
 
       setExportedHtml(html);
+      setShowPreview(true);
       onExport?.(result);
     } finally {
       setIsExporting(false);
@@ -70,14 +71,6 @@ export function ExportButton({ document, className = '', onExport }: ExportButto
     }
   }, [exportedHtml]);
 
-  const handlePreview = useCallback(() => {
-    if (!document) return;
-
-    const html = generateEmailHtml(document);
-    setExportedHtml(html);
-    setShowPreview(true);
-  }, [document]);
-
   const closePreview = useCallback(() => {
     setShowPreview(false);
   }, []);
@@ -86,25 +79,14 @@ export function ExportButton({ document, className = '', onExport }: ExportButto
 
   return (
     <>
-      <div className={`inline-flex items-center gap-2 ${className}`}>
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={isDisabled || isExporting}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          {isExporting ? 'Exporting...' : 'Export HTML'}
-        </button>
-
-        <button
-          type="button"
-          onClick={handlePreview}
-          disabled={isDisabled}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          Preview
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={handleExport}
+        disabled={isDisabled || isExporting}
+        className={`px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${className}`}
+      >
+        {isExporting ? 'Exporting...' : 'Export & Preview'}
+      </button>
 
       {/* Preview Modal */}
       {showPreview && exportedHtml && (

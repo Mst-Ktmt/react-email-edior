@@ -14,6 +14,7 @@ import type {
   HeadingBlock,
   ImageBlock,
   ButtonBlock,
+  ButtonBlockProps,
   DividerBlock,
   SpacerBlock,
   VideoBlock,
@@ -23,6 +24,7 @@ import type {
 import { isSectionBlock, isColumnsBlock } from '@/types';
 import { generateInlineStyles } from './cssInliner';
 import type { StyleMap } from './cssInliner';
+import { buildTrackingUrl } from './buildTrackingUrl';
 
 /**
  * Generate complete email HTML from document
@@ -256,43 +258,138 @@ function generateImageHtml(block: ImageBlock): string {
 }
 
 /**
+ * Generate icon HTML
+ */
+function generateIconHtml(icon: ButtonBlockProps['icon'], textColor: string): string {
+  if (!icon) return '';
+
+  if (icon.type === 'emoji' || icon.type === 'unicode') {
+    // Emoji or Unicode character
+    return `<span style="display: inline-block; vertical-align: middle;">${escapeHtml(icon.content)}</span>`;
+  }
+
+  // SVG
+  const svgColor = icon.color || textColor;
+  const svgSize = icon.size || 16;
+  return `<span style="display: inline-block; vertical-align: middle;"><svg width="${svgSize}" height="${svgSize}" fill="${svgColor}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">${icon.content}</svg></span>`;
+}
+
+/**
+ * Generate button content with icon
+ */
+function generateButtonContent(text: string, icon: ButtonBlockProps['icon'], textColor: string): string {
+  if (!icon) {
+    return escapeHtml(text);
+  }
+
+  const iconHtml = generateIconHtml(icon, textColor);
+  const textSpan = `<span style="display: inline-block; vertical-align: middle;">${escapeHtml(text)}</span>`;
+  const spacingStyle = `display: inline-block; width: ${icon.spacing}px;`;
+
+  if (icon.position === 'left') {
+    return `${iconHtml}<span style="${spacingStyle}"></span>${textSpan}`;
+  }
+  return `${textSpan}<span style="${spacingStyle}"></span>${iconHtml}`;
+}
+
+/**
  * Button block
  */
 function generateButtonHtml(block: ButtonBlock, globalStyles: GlobalStyles): string {
   const { props } = block;
   const buttonWidth = props.width === 'full' ? '100%' : props.width === 'auto' ? 'auto' : `${props.width}px`;
+  const buttonId = `button-${block.id}`;
 
+  // Generate Box Shadow CSS
+  const boxShadowCss = props.boxShadow
+    ? `${props.boxShadow.inset ? 'inset ' : ''}${props.boxShadow.x}px ${props.boxShadow.y}px ${props.boxShadow.blur}px ${props.boxShadow.spread}px ${props.boxShadow.color}`
+    : undefined;
+
+  // Generate Background CSS (Solid or Gradient)
+  const backgroundCss = props.backgroundGradient
+    ? props.backgroundGradient.type === 'linear'
+      ? `linear-gradient(${props.backgroundGradient.angle || 90}deg, ${props.backgroundGradient.colors.map((c) => `${c.color} ${c.position}%`).join(', ')})`
+      : `radial-gradient(circle, ${props.backgroundGradient.colors.map((c) => `${c.color} ${c.position}%`).join(', ')})`
+    : undefined;
+
+  // Base button styles
   const buttonStyles = generateInlineStyles({
     display: 'inline-block',
-    backgroundColor: props.backgroundColor || globalStyles.linkColor,
+    backgroundColor: !props.backgroundGradient ? props.backgroundColor || globalStyles.linkColor : undefined,
+    background: backgroundCss,
     color: props.textColor,
     fontSize: `${props.fontSize}px`,
     fontFamily: props.fontFamily || globalStyles.fontFamily,
+    fontWeight: props.fontWeight,
+    lineHeight: props.lineHeight ? String(props.lineHeight) : undefined,
+    letterSpacing: props.letterSpacing ? `${props.letterSpacing}px` : undefined,
     padding: formatPadding(props.padding),
     borderRadius: `${props.borderRadius}px`,
     textDecoration: 'none',
     textAlign: 'center',
     width: buttonWidth,
+    minWidth: props.minWidth ? `${props.minWidth}px` : undefined,
+    maxWidth: props.maxWidth ? `${props.maxWidth}px` : undefined,
+    // Border
+    border:
+      props.borderWidth && props.borderWidth > 0
+        ? `${props.borderWidth}px ${props.borderStyle || 'solid'} ${props.borderColor || '#000000'}`
+        : undefined,
+    // Box Shadow
+    boxShadow: boxShadowCss,
   });
 
+  // Container styles (opacity applied here for Outlook compatibility)
+  const containerOpacity = props.opacity !== undefined ? props.opacity : 1.0;
   const tdStyles = generateInlineStyles({
     textAlign: props.align,
     padding: '10px 0',
+    opacity: containerOpacity < 1.0 ? String(containerOpacity) : undefined,
   });
 
-  return `<tr${getResponsiveClasses(props)}>
+  // Generate hover style CSS
+  const hoverStyleCss = props.hoverStyle
+    ? `
+    <style>
+      .${buttonId}:hover {
+        ${props.hoverStyle.backgroundColor ? `background-color: ${props.hoverStyle.backgroundColor} !important;` : ''}
+        ${props.hoverStyle.textColor ? `color: ${props.hoverStyle.textColor} !important;` : ''}
+        ${props.hoverStyle.borderColor ? `border-color: ${props.hoverStyle.borderColor} !important;` : ''}
+        ${props.hoverStyle.opacity !== undefined ? `opacity: ${props.hoverStyle.opacity};` : ''}
+      }
+    </style>`
+    : '';
+
+  // Generate button content with icon
+  const buttonContent = generateButtonContent(props.text, props.icon, props.textColor);
+
+  // VML content for Outlook (emoji/unicode only, SVG not supported)
+  const vmlContent =
+    props.icon && (props.icon.type === 'emoji' || props.icon.type === 'unicode')
+      ? props.icon.position === 'left'
+        ? `${props.icon.content} ${escapeHtml(props.text)}`
+        : `${escapeHtml(props.text)} ${props.icon.content}`
+      : escapeHtml(props.text);
+
+  // Generate VML for Outlook (with basic styles only)
+  const vmlArcsize = props.borderRadius > 0 ? Math.min(Math.round((props.borderRadius / 50) * 100), 100) : 0;
+
+  // Build final URL with tracking parameters
+  const finalUrl = buildTrackingUrl(props.linkUrl, props.tracking);
+
+  return `${hoverStyleCss}<tr${getResponsiveClasses(props)}>
   <td style="${tdStyles}">
     <!--[if mso]>
-    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${escapeHtml(props.linkUrl)}" style="height:auto;v-text-anchor:middle;width:${buttonWidth};" arcsize="10%" strokecolor="${props.backgroundColor || globalStyles.linkColor}" fillcolor="${props.backgroundColor || globalStyles.linkColor}">
+    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${escapeHtml(finalUrl)}" style="height:auto;v-text-anchor:middle;width:${buttonWidth};" arcsize="${vmlArcsize}%" ${props.borderWidth && props.borderWidth > 0 ? `stroke="t" strokecolor="${props.borderColor || '#000000'}" strokeweight="${props.borderWidth}px"` : 'stroke="f"'} fillcolor="${props.backgroundColor || globalStyles.linkColor}">
       <w:anchorlock/>
-      <center style="color:${props.textColor};font-family:${props.fontFamily || globalStyles.fontFamily};font-size:${props.fontSize}px;">
-        ${escapeHtml(props.text)}
+      <center style="color:${props.textColor};font-family:${props.fontFamily || globalStyles.fontFamily};font-size:${props.fontSize}px;${props.fontWeight ? `font-weight:${props.fontWeight};` : ''}">
+        ${vmlContent}
       </center>
     </v:roundrect>
     <![endif]-->
     <!--[if !mso]><!-->
-    <a href="${escapeHtml(props.linkUrl)}" target="_blank" style="${buttonStyles}">
-      ${escapeHtml(props.text)}
+    <a href="${escapeHtml(finalUrl)}" target="${props.linkTarget || '_blank'}" class="${buttonId}" style="${buttonStyles}">
+      ${buttonContent}
     </a>
     <!--<![endif]-->
   </td>

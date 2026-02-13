@@ -9,6 +9,15 @@ export type { SaveIndicatorProps } from './SaveIndicator';
 export { TextInput } from './TextInput';
 export { NumberInput } from './NumberInput';
 export { ColorPicker } from './ColorPicker';
+export { CheckboxInput } from './CheckboxInput';
+export { BoxShadowEditor } from './BoxShadowEditor';
+export type { BoxShadowEditorProps } from './BoxShadowEditor';
+export { EmojiPicker } from './EmojiPicker';
+export type { EmojiPickerProps } from './EmojiPicker';
+export { IconEditor } from './IconEditor';
+export type { IconEditorProps } from './IconEditor';
+export { GradientEditor } from './GradientEditor';
+export type { GradientEditorProps } from './GradientEditor';
 
 // Typography
 export { FontFamilySelect } from './FontFamilySelect';

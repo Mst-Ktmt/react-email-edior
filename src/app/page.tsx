@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { Eye, Edit } from 'lucide-react';
 import { useTranslations } from '@/components/providers/LocaleProvider';
 import { EditorLayout } from '@/components/templates/EditorLayout';
-import { ExportButton, generateEmailHtml } from '@/features/export';
+import { ExportButton } from '@/features/export';
 import { LocaleSwitcher } from '@/components/atoms/LocaleSwitcher';
 import { UndoRedoButtons } from '@/components/molecules/UndoRedoButtons';
 import { SaveLoadButtons } from '@/components/molecules/SaveLoadButtons';
@@ -54,23 +54,6 @@ function EditorHeader() {
     [setDocument]
   );
 
-  const handleDownloadHtml = useCallback(() => {
-    if (!document) return;
-
-    const html = generateEmailHtml(document);
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = globalThis.document.createElement('a');
-    link.href = url;
-    link.download = `${document.name || 'email-export'}.html`;
-    globalThis.document.body.appendChild(link);
-    link.click();
-    globalThis.document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }, [document]);
-
-  const isExportDisabled = !document || document.sections.length === 0;
-
   return (
     <div className="flex items-center justify-between h-full px-4">
       <div className="flex items-center gap-4">
@@ -111,14 +94,6 @@ function EditorHeader() {
               {t('showPreview')}
             </>
           )}
-        </button>
-        <button
-          type="button"
-          onClick={handleDownloadHtml}
-          disabled={isExportDisabled}
-          className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-        >
-          Download HTML
         </button>
         <ExportButton document={document} />
         <LocaleSwitcher />

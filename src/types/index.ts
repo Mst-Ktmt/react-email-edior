@@ -32,6 +32,15 @@ export type {
   TimerBlockProps,
   BlockPropsMap,
   BlockProps,
+  // Button拡張型
+  ButtonHoverStyle,
+  BoxShadow,
+  IconType,
+  ButtonIcon,
+  GradientType,
+  GradientColor,
+  BackgroundGradient,
+  ButtonTracking,
 } from './props';
 
 // ブロック型
@@ -101,4 +110,12 @@ export {
   defaultSpacerBlockProps,
   defaultVideoBlockProps,
   defaultTimerBlockProps,
+  // Button拡張機能のデフォルト値
+  defaultButtonHoverStyle,
+  defaultBoxShadow,
+  boxShadowPresets,
+  defaultButtonIcon,
+  defaultBackgroundGradient,
+  gradientPresets,
+  defaultButtonTracking,
 } from './defaults';

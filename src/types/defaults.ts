@@ -17,6 +17,11 @@ import type {
   VideoBlockProps,
   TimerBlockProps,
   Spacing,
+  ButtonHoverStyle,
+  BoxShadow,
+  ButtonIcon,
+  BackgroundGradient,
+  ButtonTracking,
 } from './props';
 
 // ============================================================
@@ -69,6 +74,138 @@ export const defaultButtonBlockProps: ButtonBlockProps = {
   align: 'center',
   width: 'auto',
   marginBottom: 0,
+  // 新規プロパティはundefined（無効状態）がデフォルト
+  // hoverStyle: undefined,
+  // boxShadow: undefined,
+  // opacity: 1.0,
+  // icon: undefined,
+  // backgroundGradient: undefined,
+  // minWidth: undefined,
+  // maxWidth: undefined,
+  // tracking: undefined,
+};
+
+// ============================================================
+// Buttonブロック拡張機能のデフォルト値
+// ============================================================
+
+/**
+ * デフォルトホバースタイル
+ * 未指定時は通常スタイルから自動生成（背景色を10%暗く）
+ */
+export const defaultButtonHoverStyle: ButtonHoverStyle = {
+  backgroundColor: undefined, // 自動生成
+  textColor: undefined,        // 変更なし
+  borderColor: undefined,      // 自動生成
+  opacity: 1.0,
+};
+
+/**
+ * デフォルトBox Shadow
+ */
+export const defaultBoxShadow: BoxShadow = {
+  x: 0,
+  y: 2,
+  blur: 4,
+  spread: 0,
+  color: 'rgba(0, 0, 0, 0.1)',
+  inset: false,
+};
+
+/**
+ * Box Shadowプリセット
+ */
+export const boxShadowPresets = {
+  subtle: {
+    x: 0,
+    y: 2,
+    blur: 4,
+    spread: 0,
+    color: 'rgba(0, 0, 0, 0.1)',
+    inset: false,
+  } as BoxShadow,
+  medium: {
+    x: 0,
+    y: 4,
+    blur: 8,
+    spread: 0,
+    color: 'rgba(0, 0, 0, 0.15)',
+    inset: false,
+  } as BoxShadow,
+  strong: {
+    x: 0,
+    y: 8,
+    blur: 16,
+    spread: 0,
+    color: 'rgba(0, 0, 0, 0.2)',
+    inset: false,
+  } as BoxShadow,
+};
+
+/**
+ * デフォルトアイコン設定
+ */
+export const defaultButtonIcon: ButtonIcon = {
+  type: 'emoji',
+  content: '→',
+  position: 'right',
+  spacing: 8,
+  size: 16,
+  color: undefined, // textColorを継承
+};
+
+/**
+ * デフォルトグラデーション設定
+ */
+export const defaultBackgroundGradient: BackgroundGradient = {
+  type: 'linear',
+  angle: 90,
+  colors: [
+    { color: '#667eea', position: 0 },
+    { color: '#764ba2', position: 100 },
+  ],
+};
+
+/**
+ * グラデーションプリセット
+ */
+export const gradientPresets = {
+  sunset: {
+    type: 'linear' as const,
+    angle: 90,
+    colors: [
+      { color: '#ff6b6b', position: 0 },
+      { color: '#feca57', position: 100 },
+    ],
+  },
+  ocean: {
+    type: 'linear' as const,
+    angle: 90,
+    colors: [
+      { color: '#4facfe', position: 0 },
+      { color: '#00f2fe', position: 100 },
+    ],
+  },
+  purple: {
+    type: 'linear' as const,
+    angle: 90,
+    colors: [
+      { color: '#667eea', position: 0 },
+      { color: '#764ba2', position: 100 },
+    ],
+  },
+};
+
+/**
+ * デフォルトトラッキング設定
+ */
+export const defaultButtonTracking: ButtonTracking = {
+  utmSource: 'email',
+  utmMedium: 'newsletter',
+  utmCampaign: undefined,
+  utmTerm: undefined,
+  utmContent: undefined,
+  customParams: {},
 };
 
 export const defaultDividerBlockProps: DividerBlockProps = {
