@@ -190,6 +190,11 @@ export function useDnd(): UseDndReturn {
     const overData = over.data.current;
     const overId = over.id;
 
+    // サイドバーまたはプロパティパネルにドロップした場合はキャンセル
+    if (overId === 'sidebar' || overId === 'property-panel') {
+      return;
+    }
+
     // Canvas-block to canvas-block: Reorder within section
     if (activeData?.type === 'canvas-block' && overData?.type === 'canvas-block') {
       const activeBlockId = activeData.blockId as string;

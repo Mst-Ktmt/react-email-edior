@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
+import { useDroppable } from '@dnd-kit/core';
 import type {
   Block,
   SectionBlock,
@@ -84,6 +85,9 @@ export function PropertyPanel({ className = '' }: PropertyPanelProps) {
   const removeBlock = useDocumentStore((state) => state.removeBlock);
   const updateGlobalStyles = useDocumentStore((state) => state.updateGlobalStyles);
   const pushState = useHistoryStore((state) => state.pushState);
+  const { setNodeRef } = useDroppable({
+    id: 'property-panel',
+  });
 
   // プロパティ変更時のdebounce用（最初の変更のみ履歴保存）
   const hasUnsavedChanges = useRef(false);
@@ -244,6 +248,7 @@ export function PropertyPanel({ className = '' }: PropertyPanelProps) {
 
   return (
     <aside
+      ref={setNodeRef}
       className={`w-[300px] flex-shrink-0 border-l border-gray-200 bg-white overflow-y-auto ${className}`}
     >
       {/* Tab Header */}

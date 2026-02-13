@@ -138,6 +138,7 @@ function BlockRenderer({
                   key={child.id}
                   id={child.id}
                   data={{ type: 'canvas-block', blockId: child.id }}
+                  handleOnly={true}
                 >
                   <BlockRenderer
                     block={child}
@@ -179,6 +180,7 @@ function BlockRenderer({
                   key={child.id}
                   id={child.id}
                   data={{ type: 'canvas-block', blockId: child.id }}
+                  handleOnly={true}
                 >
                   <BlockRenderer
                     block={child}
@@ -353,6 +355,7 @@ export function Canvas({ className = '' }: CanvasProps) {
                       key={section.id}
                       id={section.id}
                       data={{ type: 'canvas-block', blockId: section.id }}
+                      handleOnly={true}
                     >
                       <BlockRenderer
                         block={section}

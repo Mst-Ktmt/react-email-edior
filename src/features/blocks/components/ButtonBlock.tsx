@@ -35,7 +35,6 @@ export function ButtonBlock({ props, blockId, isSelected, onClick, onUpdateText 
     maxWidth,
   } = props;
 
-
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(text);
   const [isHovered, setIsHovered] = useState(false);
@@ -208,23 +207,32 @@ export function ButtonBlock({ props, blockId, isSelected, onClick, onUpdateText 
   }, [text, icon, textColor]);
 
   const buttonStyle = useMemo(() => {
-    return {
+    const style: React.CSSProperties = {
       padding: paddingStyle,
-      backgroundColor: !backgroundGradient ? backgroundColor : undefined,
-      background: backgroundCss,
       color: textColor,
       fontSize: `${fontSize}px`,
       borderRadius: `${borderRadius}px`,
       width: buttonWidth,
-      minWidth: minWidth ? `${minWidth}px` : undefined,
-      maxWidth: maxWidth ? `${maxWidth}px` : undefined,
       display: 'inline-block',
       textAlign: 'center' as const,
       textDecoration: 'none',
-      boxShadow: boxShadowCss,
       opacity: opacity !== undefined ? opacity : 1,
       transition: 'all 0.2s ease',
     };
+
+    // グラデーション背景または単色背景
+    if (backgroundCss) {
+      style.background = backgroundCss;
+    } else {
+      style.backgroundColor = backgroundColor;
+    }
+
+    // オプショナルなスタイル
+    if (minWidth) style.minWidth = `${minWidth}px`;
+    if (maxWidth) style.maxWidth = `${maxWidth}px`;
+    if (boxShadowCss) style.boxShadow = boxShadowCss;
+
+    return style;
   }, [
     paddingStyle,
     backgroundGradient,

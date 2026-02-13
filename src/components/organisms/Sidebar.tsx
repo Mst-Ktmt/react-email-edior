@@ -16,6 +16,7 @@ import {
   Timer,
   type LucideIcon,
 } from 'lucide-react';
+import { useDroppable } from '@dnd-kit/core';
 import { DraggableBlock } from '@/features/editor/components/DraggableBlock';
 import { useTranslations } from '@/components/providers/LocaleProvider';
 
@@ -41,9 +42,13 @@ const BLOCK_TYPES: { id: string; icon: LucideIcon }[] = [
 
 export function Sidebar({ className = '' }: SidebarProps) {
   const t = useTranslations('Sidebar');
+  const { setNodeRef } = useDroppable({
+    id: 'sidebar',
+  });
 
   return (
     <aside
+      ref={setNodeRef}
       className={`w-[260px] flex-shrink-0 border-r border-gray-200 bg-gray-50 overflow-y-auto ${className}`}
     >
       <div className="p-4">
