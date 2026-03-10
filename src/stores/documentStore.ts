@@ -41,6 +41,14 @@ interface DocumentStore {
   updateGlobalStyles: (updates: Partial<EmailDocument['globalStyles']>) => void;
   /** 列内へブロックを追加 */
   addBlockToColumn: (parentBlockId: string, columnIndex: number, block: Block) => void;
+  /** 指定位置にブロックを挿入 */
+  insertBlockAt: (parentId: string, targetBlockId: string, position: 'before' | 'after', block: Block, columnIndex?: number) => void;
+  /** 指定位置にセクションを挿入 */
+  insertSectionAt: (targetSectionId: string, position: 'before' | 'after', section: SectionBlock) => void;
+  /** セクションを指定位置に移動 */
+  moveSectionToPosition: (activeSectionId: string, targetSectionId: string, position: 'before' | 'after') => void;
+  /** ブロックを指定位置に移動 */
+  moveBlockToPosition: (activeBlockId: string, parentId: string, targetBlockId: string, position: 'before' | 'after', columnIndex?: number) => void;
 }
 
 // ============================================================
@@ -332,6 +340,224 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       document: newDocument,
       isDirty: true,
       selectedBlockId: block.id,
+    });
+  },
+
+  insertBlockAt: (parentId, targetBlockId, position, block, columnIndex) => {
+    const { document } = get();
+    if (!document) return;
+
+    const newDocument = structuredClone(document);
+    newDocument.updatedAt = new Date().toISOString();
+
+    // セクション内に挿入
+    if (columnIndex === undefined) {
+      const findAndInsert = (section: SectionBlock): SectionBlock => {
+        if (section.id === parentId) {
+          const targetIndex = section.children.findIndex((child) => child.id === targetBlockId);
+          if (targetIndex !== -1) {
+            const newChildren = [...section.children];
+            const insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
+            newChildren.splice(insertIndex, 0, block);
+            return { ...section, children: newChildren };
+          }
+        }
+
+        // 再帰的に探索
+        const newChildren = section.children.map((child) => {
+          if (isSectionBlock(child)) {
+            return findAndInsert(child);
+          }
+          return child;
+        });
+
+        return { ...section, children: newChildren };
+      };
+
+      newDocument.sections = newDocument.sections.map((section) =>
+        findAndInsert(section)
+      );
+    } else {
+      // 列内に挿入
+      const findAndInsertInColumn = (currentBlock: Block): Block => {
+        if (currentBlock.id === parentId && isColumnsBlock(currentBlock)) {
+          const updatedColumns = [...currentBlock.columns];
+          if (updatedColumns[columnIndex]) {
+            const targetIndex = updatedColumns[columnIndex].children.findIndex(
+              (child) => child.id === targetBlockId
+            );
+            if (targetIndex !== -1) {
+              const newChildren = [...updatedColumns[columnIndex].children];
+              const insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
+              newChildren.splice(insertIndex, 0, block as LeafBlock);
+              updatedColumns[columnIndex] = {
+                ...updatedColumns[columnIndex],
+                children: newChildren,
+              };
+            }
+          }
+          return { ...currentBlock, columns: updatedColumns };
+        }
+
+        // SectionBlockの場合、子要素を再帰的に探索
+        if (isSectionBlock(currentBlock)) {
+          const updatedChildren = currentBlock.children.map((child) =>
+            findAndInsertInColumn(child)
+          );
+          return { ...currentBlock, children: updatedChildren };
+        }
+
+        return currentBlock;
+      };
+
+      newDocument.sections = newDocument.sections.map((section) =>
+        findAndInsertInColumn(section) as SectionBlock
+      );
+    }
+
+    set({
+      document: newDocument,
+      isDirty: true,
+      selectedBlockId: block.id,
+    });
+  },
+
+  insertSectionAt: (targetSectionId, position, section) => {
+    const { document } = get();
+    if (!document) return;
+
+    const newDocument = structuredClone(document);
+    newDocument.updatedAt = new Date().toISOString();
+
+    const targetIndex = newDocument.sections.findIndex((s) => s.id === targetSectionId);
+    if (targetIndex !== -1) {
+      const insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
+      newDocument.sections.splice(insertIndex, 0, section);
+    }
+
+    set({
+      document: newDocument,
+      isDirty: true,
+      selectedBlockId: section.id,
+    });
+  },
+
+  moveSectionToPosition: (activeSectionId: string, targetSectionId: string, position: 'before' | 'after') => {
+    const { document } = get();
+    if (!document) return;
+
+    const newDocument = structuredClone(document);
+    newDocument.updatedAt = new Date().toISOString();
+
+    // アクティブなセクションを見つけて削除
+    const activeIndex = newDocument.sections.findIndex((s) => s.id === activeSectionId);
+    if (activeIndex === -1) return;
+
+    const [movedSection] = newDocument.sections.splice(activeIndex, 1);
+
+    // ターゲット位置を再計算（削除後のインデックスを考慮）
+    const targetIndex = newDocument.sections.findIndex((s) => s.id === targetSectionId);
+    if (targetIndex === -1) return;
+
+    const insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
+    newDocument.sections.splice(insertIndex, 0, movedSection);
+
+    set({
+      document: newDocument,
+      isDirty: true,
+      selectedBlockId: activeSectionId,
+    });
+  },
+
+  moveBlockToPosition: (activeBlockId: string, parentId: string, targetBlockId: string, position: 'before' | 'after', columnIndex?: number) => {
+    const { document } = get();
+    if (!document) return;
+
+    const newDocument = structuredClone(document);
+    newDocument.updatedAt = new Date().toISOString();
+
+    // アクティブなブロックを見つけて削除
+    let movedBlock: Block | null = null;
+
+    const removeBlock = (section: SectionBlock): SectionBlock => {
+      // セクション直下のブロックをチェック
+      const blockIndex = section.children.findIndex((child) => child.id === activeBlockId);
+      if (blockIndex !== -1) {
+        [movedBlock] = section.children.splice(blockIndex, 1);
+        return section;
+      }
+
+      // ColumnsBlock内のブロックをチェック
+      const newChildren = section.children.map((child) => {
+        if (isColumnsBlock(child)) {
+          const newColumns = child.columns.map((column) => {
+            const colBlockIndex = column.children.findIndex((colChild) => colChild.id === activeBlockId);
+            if (colBlockIndex !== -1) {
+              [movedBlock] = column.children.splice(colBlockIndex, 1) as [Block];
+            }
+            return column;
+          });
+          return { ...child, columns: newColumns };
+        }
+        return child;
+      });
+
+      return { ...section, children: newChildren };
+    };
+
+    newDocument.sections = newDocument.sections.map((section) => removeBlock(section));
+
+    if (!movedBlock) return;
+
+    // ターゲット位置に挿入
+    if (columnIndex === undefined) {
+      // セクション内に挿入
+      const findAndInsert = (section: SectionBlock): SectionBlock => {
+        if (section.id === parentId) {
+          const targetIndex = section.children.findIndex((child) => child.id === targetBlockId);
+          if (targetIndex !== -1) {
+            const insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
+            section.children.splice(insertIndex, 0, movedBlock!);
+          }
+        }
+        return section;
+      };
+
+      newDocument.sections = newDocument.sections.map((section) => findAndInsert(section));
+    } else {
+      // 列内に挿入
+      const findAndInsertInColumn = (currentBlock: Block): Block => {
+        if (currentBlock.id === parentId && isColumnsBlock(currentBlock)) {
+          const updatedColumns = [...currentBlock.columns];
+          if (updatedColumns[columnIndex]) {
+            const targetIndex = updatedColumns[columnIndex].children.findIndex(
+              (child) => child.id === targetBlockId
+            );
+            if (targetIndex !== -1) {
+              const insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
+              updatedColumns[columnIndex].children.splice(insertIndex, 0, movedBlock as LeafBlock);
+            }
+          }
+          return { ...currentBlock, columns: updatedColumns };
+        }
+
+        if (isSectionBlock(currentBlock)) {
+          const updatedChildren = currentBlock.children.map((child) => findAndInsertInColumn(child));
+          return { ...currentBlock, children: updatedChildren };
+        }
+
+        return currentBlock;
+      };
+
+      newDocument.sections = newDocument.sections.map((section) =>
+        findAndInsertInColumn(section) as SectionBlock
+      );
+    }
+
+    set({
+      document: newDocument,
+      isDirty: true,
+      selectedBlockId: activeBlockId,
     });
   },
 }));

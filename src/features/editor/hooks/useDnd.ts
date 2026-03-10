@@ -162,7 +162,16 @@ function createDefaultBlock(blockType: string, localizedDefaults?: LocalizedDefa
 
 export function useDnd(): UseDndReturn {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const { document, addBlock, reorderBlocks, addBlockToColumn } = useDocumentStore();
+  const {
+    document,
+    addBlock,
+    reorderBlocks,
+    addBlockToColumn,
+    insertBlockAt,
+    insertSectionAt,
+    moveSectionToPosition,
+    moveBlockToPosition,
+  } = useDocumentStore();
   const pushState = useHistoryStore((state) => state.pushState);
   const t = useTranslations('Defaults');
 
@@ -217,6 +226,115 @@ export function useDnd(): UseDndReturn {
       return;
     }
 
+    // Existing block moved to drop indicator
+    if (activeData?.type === 'canvas-block' && (String(overId).includes('-before-') || String(overId).includes('-after-'))) {
+      const activeBlockId = activeData.blockId as string;
+      const overIdStr = String(overId);
+
+      if (!document) return;
+
+      // 自分自身の前後にはドロップできない
+      if (overIdStr.includes(activeBlockId)) {
+        return;
+      }
+
+      // Undo/Redo用に現在の状態を保存
+      pushState(document, 'Move block');
+
+      // セクション間への移動
+      if (overIdStr.startsWith('canvas-')) {
+        const match = overIdStr.match(/^canvas-(before|after)-(.+)$/);
+        if (match) {
+          const [, position, targetSectionId] = match;
+          moveSectionToPosition(activeBlockId, targetSectionId, position as 'before' | 'after');
+          return;
+        }
+      }
+
+      // セクション内/列内への移動
+      if (overIdStr.startsWith('section-')) {
+        const match = overIdStr.match(/^section-(.+)-(before|after)-(.+)$/);
+        if (match) {
+          const [, sectionId, position, targetBlockId] = match;
+          moveBlockToPosition(activeBlockId, sectionId, targetBlockId, position as 'before' | 'after');
+          return;
+        }
+      }
+
+      if (overIdStr.startsWith('column-')) {
+        const match = overIdStr.match(/^column-(.+)-(\d+)-(before|after)-(.+)$/);
+        if (match) {
+          const [, columnsBlockId, columnIndexStr, position, targetBlockId] = match;
+          const columnIndex = parseInt(columnIndexStr, 10);
+          moveBlockToPosition(activeBlockId, columnsBlockId, targetBlockId, position as 'before' | 'after', columnIndex);
+          return;
+        }
+      }
+
+      return;
+    }
+
+    // Block dropped from sidebar to drop indicator (between blocks)
+    if (activeData?.type === 'sidebar-block' && (String(overId).includes('-before-') || String(overId).includes('-after-'))) {
+      const blockType = activeData.blockType as string;
+      const overIdStr = String(overId);
+
+      const newBlock = createDefaultBlock(blockType, localizedDefaults);
+      if (!newBlock || !document) return;
+
+      // Undo/Redo用に現在の状態を保存
+      pushState(document, blockType === 'section' ? 'Insert section' : 'Insert block');
+
+      // キャンバス（セクション間）へのドロップ
+      if (overIdStr.startsWith('canvas-')) {
+        const match = overIdStr.match(/^canvas-(before|after)-(.+)$/);
+        if (match) {
+          const [, position, targetSectionId] = match;
+
+          // セクションブロックの場合はそのまま挿入
+          if (blockType === 'section') {
+            insertSectionAt(targetSectionId, position as 'before' | 'after', newBlock as SectionBlock);
+            return;
+          }
+
+          // 通常のブロックの場合は新しいセクションを作成して挿入
+          const newSection = createDefaultBlock('section', localizedDefaults) as SectionBlock;
+          if (newSection) {
+            newSection.children = [newBlock];
+            insertSectionAt(targetSectionId, position as 'before' | 'after', newSection);
+          }
+          return;
+        }
+      }
+
+      // ドロップゾーンIDを解析
+      // Format: section-{sectionId}-before-{blockId}
+      // Format: section-{sectionId}-after-{blockId}
+      // Format: column-{columnsBlockId}-{columnIndex}-before-{blockId}
+      // Format: column-{columnsBlockId}-{columnIndex}-after-{blockId}
+
+      if (overIdStr.startsWith('section-')) {
+        const match = overIdStr.match(/^section-(.+)-(before|after)-(.+)$/);
+        if (match) {
+          const [, sectionId, position, targetBlockId] = match;
+          insertBlockAt(sectionId, targetBlockId, position as 'before' | 'after', newBlock);
+          return;
+        }
+      }
+
+      if (overIdStr.startsWith('column-')) {
+        const match = overIdStr.match(/^column-(.+)-(\d+)-(before|after)-(.+)$/);
+        if (match) {
+          const [, columnsBlockId, columnIndexStr, position, targetBlockId] = match;
+          const columnIndex = parseInt(columnIndexStr, 10);
+          insertBlockAt(columnsBlockId, targetBlockId, position as 'before' | 'after', newBlock, columnIndex);
+          return;
+        }
+      }
+
+      return;
+    }
+
     // Block dropped from sidebar to column
     if (activeData?.type === 'sidebar-block' && String(overId).startsWith('column-')) {
       const blockType = activeData.blockType as string;
@@ -247,20 +365,6 @@ export function useDnd(): UseDndReturn {
     if (activeData?.type === 'sidebar-block' && overId === 'canvas') {
       const blockType = activeData.blockType as string;
 
-      // セクションブロックの場合
-      if (blockType === 'section') {
-        const newSection = createDefaultBlock('section', localizedDefaults);
-        if (newSection) {
-          // Undo/Redo用に現在の状態を保存
-          if (document) {
-            pushState(document, 'Add section');
-          }
-          addBlock(newSection);
-        }
-        return;
-      }
-
-      // 非セクションブロックの場合
       const newBlock = createDefaultBlock(blockType, localizedDefaults);
       if (!newBlock) return;
 
@@ -282,7 +386,7 @@ export function useDnd(): UseDndReturn {
         addBlock(newBlock);
       }
     }
-  }, [document, addBlock, reorderBlocks, addBlockToColumn, pushState, localizedDefaults]);
+  }, [document, addBlock, reorderBlocks, addBlockToColumn, insertBlockAt, insertSectionAt, moveSectionToPosition, moveBlockToPosition, pushState, localizedDefaults]);
 
   const handleDragCancel = useCallback(() => {
     setActiveId(null);

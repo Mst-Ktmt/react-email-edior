@@ -10,6 +10,7 @@ import { useDocumentStore } from '@/stores';
 import { useHistory } from '@/hooks/useHistory';
 import { useClipboard } from '@/hooks/useClipboard';
 import { createEmptyDocument } from '@/types/document';
+import { loadFromLocalStorage } from '@/utils/saveLoad';
 import type { EmailDocument } from '@/types';
 
 interface EditorLayoutProps {
@@ -40,10 +41,17 @@ export function EditorLayout({ header }: EditorLayoutProps) {
     enableKeyboardShortcuts: true,
   });
 
-  // 初期ドキュメント設定
+  // 初期ドキュメント設定（localStorageから復元 or 空ドキュメント作成）
   useEffect(() => {
     if (!document) {
-      setDocument(createEmptyDocument('doc_1', 'Untitled Email'));
+      // localStorageから復元を試みる
+      const result = loadFromLocalStorage();
+      if (result.success && result.data) {
+        setDocument(result.data);
+      } else {
+        // 復元失敗時は空のドキュメントを作成
+        setDocument(createEmptyDocument('doc_1', 'Untitled Email'));
+      }
     }
   }, [document, setDocument]);
 

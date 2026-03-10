@@ -2,6 +2,7 @@
 
 import { DroppableCanvas } from '@/features/editor/components/DroppableCanvas';
 import { DraggableBlock } from '@/features/editor/components/DraggableBlock';
+import { DropIndicator } from '@/features/editor/components/DropIndicator';
 import { usePreviewMode } from '@/hooks/usePreviewMode';
 import { useDocumentStore } from '@/stores/documentStore';
 import { useUIStore } from '@/stores/uiStore';
@@ -129,7 +130,7 @@ function BlockRenderer({
           onClick={handleClick}
         >
           <div className="flex flex-col gap-2">
-            {sectionBlock.children.map((child) =>
+            {sectionBlock.children.map((child, index) =>
               isPreviewMode ? (
                 <BlockRenderer
                   key={child.id}
@@ -142,22 +143,27 @@ function BlockRenderer({
                   isMobile={isMobile}
                 />
               ) : (
-                <DraggableBlock
-                  key={child.id}
-                  id={child.id}
-                  data={{ type: 'canvas-block', blockId: child.id }}
-                  handleOnly={true}
-                >
-                  <BlockRenderer
-                    block={child}
-                    selectedBlockId={selectedBlockId}
-                    onSelectBlock={onSelectBlock}
-                    onUpdateBlockContent={onUpdateBlockContent}
-                    onUpdateBlockText={onUpdateBlockText}
-                    isPreviewMode={isPreviewMode}
-                    isMobile={isMobile}
-                  />
-                </DraggableBlock>
+                <div key={child.id}>
+                  {index === 0 && (
+                    <DropIndicator id={`section-${block.id}-before-${child.id}`} />
+                  )}
+                  <DraggableBlock
+                    id={child.id}
+                    data={{ type: 'canvas-block', blockId: child.id }}
+                    handleOnly={true}
+                  >
+                    <BlockRenderer
+                      block={child}
+                      selectedBlockId={selectedBlockId}
+                      onSelectBlock={onSelectBlock}
+                      onUpdateBlockContent={onUpdateBlockContent}
+                      onUpdateBlockText={onUpdateBlockText}
+                      isPreviewMode={isPreviewMode}
+                      isMobile={isMobile}
+                    />
+                  </DraggableBlock>
+                  <DropIndicator id={`section-${block.id}-after-${child.id}`} />
+                </div>
               )
             )}
           </div>
@@ -167,11 +173,11 @@ function BlockRenderer({
 
     case 'columns': {
       const columnsBlock = block as ColumnsBlockType;
-      const columnChildren = columnsBlock.columns.map((column, index) => ({
-        columnIndex: index,
+      const columnChildren = columnsBlock.columns.map((column, columnIndex) => ({
+        columnIndex,
         children: (
           <div className="flex flex-col gap-2">
-            {column.children.map((child) =>
+            {column.children.map((child, childIndex) =>
               isPreviewMode ? (
                 <BlockRenderer
                   key={child.id}
@@ -184,22 +190,31 @@ function BlockRenderer({
                   isMobile={isMobile}
                 />
               ) : (
-                <DraggableBlock
-                  key={child.id}
-                  id={child.id}
-                  data={{ type: 'canvas-block', blockId: child.id }}
-                  handleOnly={true}
-                >
-                  <BlockRenderer
-                    block={child}
-                    selectedBlockId={selectedBlockId}
-                    onSelectBlock={onSelectBlock}
-                    onUpdateBlockContent={onUpdateBlockContent}
-                    onUpdateBlockText={onUpdateBlockText}
-                    isPreviewMode={isPreviewMode}
-                    isMobile={isMobile}
+                <div key={child.id}>
+                  {childIndex === 0 && (
+                    <DropIndicator
+                      id={`column-${block.id}-${columnIndex}-before-${child.id}`}
+                    />
+                  )}
+                  <DraggableBlock
+                    id={child.id}
+                    data={{ type: 'canvas-block', blockId: child.id }}
+                    handleOnly={true}
+                  >
+                    <BlockRenderer
+                      block={child}
+                      selectedBlockId={selectedBlockId}
+                      onSelectBlock={onSelectBlock}
+                      onUpdateBlockContent={onUpdateBlockContent}
+                      onUpdateBlockText={onUpdateBlockText}
+                      isPreviewMode={isPreviewMode}
+                      isMobile={isMobile}
+                    />
+                  </DraggableBlock>
+                  <DropIndicator
+                    id={`column-${block.id}-${columnIndex}-after-${child.id}`}
                   />
-                </DraggableBlock>
+                </div>
               )
             )}
           </div>
@@ -381,22 +396,27 @@ export function Canvas({ className = '' }: CanvasProps) {
                     gap: '24px',
                   }}
                 >
-                  {document?.sections.map((section) => (
-                    <DraggableBlock
-                      key={section.id}
-                      id={section.id}
-                      data={{ type: 'canvas-block', blockId: section.id }}
-                      handleOnly={true}
-                    >
-                      <BlockRenderer
-                        block={section}
-                        selectedBlockId={selectedBlockId}
-                        onSelectBlock={handleSelectBlock}
-                        onUpdateBlockContent={handleUpdateBlockContent}
-                        onUpdateBlockText={handleUpdateBlockText}
-                        isPreviewMode={false}
-                      />
-                    </DraggableBlock>
+                  {document?.sections.map((section, index) => (
+                    <div key={section.id}>
+                      {index === 0 && (
+                        <DropIndicator id={`canvas-before-${section.id}`} />
+                      )}
+                      <DraggableBlock
+                        id={section.id}
+                        data={{ type: 'canvas-block', blockId: section.id }}
+                        handleOnly={true}
+                      >
+                        <BlockRenderer
+                          block={section}
+                          selectedBlockId={selectedBlockId}
+                          onSelectBlock={handleSelectBlock}
+                          onUpdateBlockContent={handleUpdateBlockContent}
+                          onUpdateBlockText={handleUpdateBlockText}
+                          isPreviewMode={false}
+                        />
+                      </DraggableBlock>
+                      <DropIndicator id={`canvas-after-${section.id}`} />
+                    </div>
                   ))}
 
                   {!hasBlocks && (

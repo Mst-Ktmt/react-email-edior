@@ -29,7 +29,6 @@ const BLOCK_TYPES: { id: string; icon: LucideIcon }[] = [
   { id: 'image', icon: Image },
   { id: 'button', icon: MousePointerClick },
   { id: 'divider', icon: Minus },
-  { id: 'section', icon: BoxSelect },
   { id: 'columns', icon: Columns },
   { id: 'spacer', icon: MoveVertical },
   { id: 'heading', icon: Heading },
