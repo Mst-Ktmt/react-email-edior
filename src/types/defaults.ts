@@ -236,6 +236,12 @@ export const defaultColumnsBlockProps: ColumnsBlockProps = {
   columnWidths: [50, 50],
   verticalAlign: 'top',
   stackOnMobile: true,
+  backgroundColor: 'transparent',
+  padding: defaultSpacing,
+  borderColor: '#cccccc',
+  borderWidth: 0,
+  borderStyle: 'solid',
+  borderRadius: 0,
 };
 
 export const defaultSpacerBlockProps: SpacerBlockProps = {

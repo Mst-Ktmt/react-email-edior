@@ -20,7 +20,7 @@ import type {
   SectionBlockProps,
   GlobalStyles,
 } from '@/types';
-import { isSectionBlock } from '@/types/block';
+import { isSectionBlock, isColumnsBlock } from '@/types/block';
 import { useDocumentStore, useHistoryStore } from '@/stores';
 import { useTranslations } from '@/components/providers/LocaleProvider';
 import {
@@ -62,6 +62,14 @@ function findBlockById(sections: SectionBlock[], blockId: string): Block | null 
       if (isSectionBlock(child)) {
         const found = findBlockById([child], blockId);
         if (found) return found;
+      }
+      // ColumnsBlock内のブロックを検索
+      if (isColumnsBlock(child)) {
+        for (const column of child.columns) {
+          for (const columnChild of column.children) {
+            if (columnChild.id === blockId) return columnChild;
+          }
+        }
       }
     }
   }

@@ -1,8 +1,17 @@
 'use client';
 
 import { ReactNode } from 'react';
-import type { ColumnsBlockProps, ColumnCount } from '@/types/block';
+import type { ColumnsBlockProps, ColumnCount, Spacing } from '@/types/block';
 import { defaultColumnsBlockProps } from '@/types/defaults';
+import { DroppableCanvas } from '@/features/editor/components/DroppableCanvas';
+
+/**
+ * Format padding from Spacing object to CSS string
+ */
+function formatPadding(padding: Spacing | undefined): string {
+  if (!padding) return '0';
+  return `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`;
+}
 
 interface ColumnChildren {
   columnIndex: number;
@@ -16,6 +25,7 @@ interface Props {
   isSelected?: boolean;
   onClick?: () => void;
   onColumnClick?: (columnIndex: number) => void;
+  isPreviewMode?: boolean;
 }
 
 /**
@@ -37,6 +47,7 @@ export function ColumnsBlock({
   isSelected = false,
   onClick,
   onColumnClick,
+  isPreviewMode = false,
 }: Props) {
   const { columnCount, gap, columnWidths, verticalAlign, stackOnMobile } = {
     ...defaultColumnsBlockProps,
@@ -61,9 +72,15 @@ export function ColumnsBlock({
         ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : ''}
         transition-shadow duration-150
       `}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick?.();
+      style={{
+        backgroundColor: props.backgroundColor ?? 'transparent',
+        padding: formatPadding(props.padding),
+        border: (props.borderWidth ?? 0) > 0
+          ? `${props.borderWidth}px ${props.borderStyle ?? 'solid'} ${props.borderColor ?? '#cccccc'}`
+          : undefined,
+        borderRadius: (props.borderRadius ?? 0) > 0
+          ? `${props.borderRadius}px`
+          : undefined,
       }}
     >
       <div
@@ -79,30 +96,59 @@ export function ColumnsBlock({
           )?.children;
 
           return (
-            <div
+            <DroppableCanvas
               key={index}
-              data-column-index={index}
-              className={`
-                relative min-h-[60px]
-                ${stackOnMobile ? 'w-full md:w-auto' : ''}
-              `}
+              id={`column-${id}-${index}`}
+              className="relative min-h-[60px]"
               style={{
-                flex: stackOnMobile
-                  ? undefined
-                  : `0 0 ${normalizedWidths[index]}%`,
-                width: stackOnMobile ? '100%' : `${normalizedWidths[index]}%`,
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onColumnClick?.(index);
+                flexBasis: `calc(${normalizedWidths[index]}% - ${gap * (columnCount - 1) / columnCount}px)`,
+                flexGrow: 0,
+                flexShrink: 0,
               }}
             >
-              {columnContent || (
-                <div className="flex h-full min-h-[60px] items-center justify-center border-2 border-dashed border-gray-200 bg-gray-50 text-sm text-gray-400">
-                  Column {index + 1}
+              {({ isOver }) => (
+                <div
+                  data-column-index={index}
+                  className={`
+                    h-full min-h-[60px] relative
+                    ${!isPreviewMode ? 'border border-dashed transition-colors duration-200' : ''}
+                    ${!isPreviewMode && isOver
+                      ? 'bg-blue-50 border-blue-400 border-2'
+                      : !isPreviewMode
+                      ? 'border-gray-300 hover:bg-gray-50'
+                      : ''
+                    }
+                  `}
+                >
+                  {!isPreviewMode && (
+                    <div
+                      className="absolute top-1 left-2 text-xs text-gray-400 font-medium z-10 cursor-pointer hover:text-blue-600 px-1 py-0.5 rounded hover:bg-blue-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onClick?.();
+                      }}
+                    >
+                      Column {index + 1} ({normalizedWidths[index]}%)
+                    </div>
+                  )}
+                  {columnContent ? (
+                    <div className={!isPreviewMode ? 'pt-6' : ''}>
+                      {columnContent}
+                    </div>
+                  ) : (
+                    <div
+                      className="flex h-full min-h-[60px] items-center justify-center text-sm text-gray-400 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onClick?.();
+                      }}
+                    >
+                      Column {index + 1}
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
+            </DroppableCanvas>
           );
         })}
       </div>

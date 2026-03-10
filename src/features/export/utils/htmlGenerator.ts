@@ -75,7 +75,9 @@ export function generateEmailHtml(document: EmailDocument): string {
 <body style="margin: 0; padding: 0; background-color: ${globalStyles.backgroundColor}; font-family: ${globalStyles.fontFamily};">
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: ${globalStyles.backgroundColor};">
     <tr>
-      <td align="center" style="padding: 20px 0;">
+      <td align="center" style="${generateInlineStyles({
+        padding: formatPadding(globalStyles.padding ?? { top: 0, right: 0, bottom: 0, left: 0 })
+      })}">
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="${globalStyles.contentWidth}" style="max-width: ${globalStyles.contentWidth}px;">
           ${bodyContent}
         </table>
@@ -151,6 +153,16 @@ function generateColumnsHtml(block: ColumnsBlock, globalStyles: GlobalStyles): s
   const { props, columns } = block;
   const { columnWidths, gap, verticalAlign } = props;
 
+  // ColumnsBlock全体のスタイル
+  const containerStyles = generateInlineStyles({
+    backgroundColor: props.backgroundColor ?? 'transparent',
+    padding: formatPadding(props.padding ?? { top: 0, right: 0, bottom: 0, left: 0 }),
+    borderColor: (props.borderWidth ?? 0) > 0 ? props.borderColor : undefined,
+    borderWidth: (props.borderWidth ?? 0) > 0 ? `${props.borderWidth}px` : undefined,
+    borderStyle: (props.borderWidth ?? 0) > 0 ? (props.borderStyle ?? 'solid') : undefined,
+    borderRadius: (props.borderRadius ?? 0) > 0 ? `${props.borderRadius}px` : undefined,
+  });
+
   const columnsHtml = columns
     .map((column, index) => {
       const width = columnWidths[index] ?? Math.floor(100 / columns.length);
@@ -166,7 +178,7 @@ function generateColumnsHtml(block: ColumnsBlock, globalStyles: GlobalStyles): s
     .join('\n');
 
   return `<tr>
-  <td>
+  <td style="${containerStyles}">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
       <tr>
         ${columnsHtml}

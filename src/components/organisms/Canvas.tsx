@@ -6,7 +6,15 @@ import { usePreviewMode } from '@/hooks/usePreviewMode';
 import { useDocumentStore } from '@/stores/documentStore';
 import { useUIStore } from '@/stores/uiStore';
 import { useTranslations } from '@/components/providers/LocaleProvider';
-import type { Block, SectionBlock as SectionBlockType, ColumnsBlock as ColumnsBlockType } from '@/types/block';
+import type { Block, SectionBlock as SectionBlockType, ColumnsBlock as ColumnsBlockType, Spacing } from '@/types/block';
+
+/**
+ * Format body padding from GlobalStyles
+ */
+function formatBodyPadding(padding: Spacing | undefined): string {
+  if (!padding) return '0';
+  return `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`;
+}
 
 // Block Components
 import {
@@ -198,6 +206,12 @@ function BlockRenderer({
         ),
       }));
 
+      const handleColumnClick = (columnIndex: number) => {
+        // Note: 将来的に列の個別選択を実装する場合の準備
+        // 現在は親ColumnsBlockを選択する動作を維持
+        onSelectBlock(block.id);
+      };
+
       return (
         <ColumnsBlock
           id={block.id}
@@ -205,6 +219,8 @@ function BlockRenderer({
           columnChildren={columnChildren}
           isSelected={isSelected}
           onClick={handleClick}
+          onColumnClick={handleColumnClick}
+          isPreviewMode={isPreviewMode}
         />
       );
     }
@@ -293,6 +309,9 @@ export function Canvas({ className = '' }: CanvasProps) {
   // ブロックの有無を判定
   const hasBlocks = hasBlocksInDocument(document);
 
+  // グローバルスタイル（背景色等）を取得
+  const backgroundColor = document?.globalStyles?.backgroundColor || '#ffffff';
+
   const handleSelectBlock = (blockId: string) => {
     selectBlock(blockId);
   };
@@ -323,10 +342,15 @@ export function Canvas({ className = '' }: CanvasProps) {
           {isShowPreview ? (
             /* プレビューモード：ドラッグ無効、選択枠非表示 */
             <div
-              style={{ width: `${canvasWidth}px` }}
-              className="min-h-[400px] bg-white shadow-lg transition-all duration-300"
+              style={{ width: `${canvasWidth}px`, backgroundColor }}
+              className="min-h-[400px] shadow-lg transition-all duration-300"
             >
-              <div className="min-h-[400px]">
+              <div
+                className="min-h-[400px]"
+                style={{
+                  padding: formatBodyPadding(document?.globalStyles?.padding),
+                }}
+              >
                 {document?.sections.map((section) => (
                   <BlockRenderer
                     key={section.id}
@@ -345,11 +369,18 @@ export function Canvas({ className = '' }: CanvasProps) {
             /* 編集モード：通常のドラッグ&ドロップ */
             <DroppableCanvas
               id="canvas"
-              style={{ width: `${canvasWidth}px` }}
-              className="min-h-[400px] bg-white shadow-lg transition-all duration-300"
+              style={{ width: `${canvasWidth}px`, backgroundColor }}
+              className="min-h-[400px] shadow-lg transition-all duration-300"
             >
               {({ isOver }) => (
-                <div onClick={handleCanvasClick} className="min-h-[400px] flex flex-col gap-2 p-2">
+                <div
+                  onClick={handleCanvasClick}
+                  className="min-h-[400px] flex flex-col"
+                  style={{
+                    padding: formatBodyPadding(document?.globalStyles?.padding),
+                    gap: '24px',
+                  }}
+                >
                   {document?.sections.map((section) => (
                     <DraggableBlock
                       key={section.id}

@@ -5,7 +5,10 @@ import {
   PropertySection,
   NumberInput,
   ResponsiveToggle,
+  ColorPicker,
+  SpacingEditor,
 } from '../PropertyEditor';
+import { defaultSpacing } from '@/types/defaults';
 
 // Column layout presets
 interface LayoutPreset {
@@ -158,11 +161,70 @@ export function ColumnsEditor({ props, onChange }: ColumnsEditorProps) {
         </div>
       </PropertySection>
 
+      <PropertySection title="Background">
+        <ColorPicker
+          label="Background Color"
+          value={props.backgroundColor ?? 'transparent'}
+          onChange={(value) => onChange({ backgroundColor: value })}
+        />
+      </PropertySection>
+
+      <PropertySection title="Padding">
+        <SpacingEditor
+          label="Padding"
+          value={props.padding ?? defaultSpacing}
+          onChange={(value) => onChange({ padding: value })}
+        />
+      </PropertySection>
+
       <PropertySection title="Spacing">
         <NumberInput
           label="Gap Between Columns"
           value={props.gap}
           onChange={(value) => onChange({ gap: value })}
+          min={0}
+          max={50}
+          unit="px"
+        />
+      </PropertySection>
+
+      <PropertySection title="Border">
+        <ColorPicker
+          label="Border Color"
+          value={props.borderColor ?? '#cccccc'}
+          onChange={(value) => onChange({ borderColor: value })}
+        />
+        <NumberInput
+          label="Border Width"
+          value={props.borderWidth ?? 0}
+          onChange={(value) => onChange({ borderWidth: value })}
+          min={0}
+          max={10}
+          unit="px"
+        />
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-gray-600">Border Style</span>
+          <div className="flex gap-1">
+            {(['solid', 'dashed', 'dotted'] as const).map((style) => (
+              <button
+                key={style}
+                type="button"
+                onClick={() => onChange({ borderStyle: style })}
+                className={`flex-1 py-2 text-sm rounded-md border capitalize ${
+                  (props.borderStyle ?? 'solid') === style
+                    ? 'bg-blue-500 text-white border-blue-500'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {style}
+              </button>
+            ))}
+          </div>
+        </div>
+        <NumberInput
+          label="Border Radius"
+          value={props.borderRadius ?? 0}
+          onChange={(value) => onChange({ borderRadius: value })}
           min={0}
           max={50}
           unit="px"

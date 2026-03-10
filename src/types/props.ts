@@ -253,6 +253,12 @@ export interface ColumnsBlockProps {
   gap: number;
   verticalAlign: 'top' | 'middle' | 'bottom';
   stackOnMobile: boolean;
+  backgroundColor?: string;
+  padding?: Spacing;
+  borderColor?: string;
+  borderWidth?: number;
+  borderStyle?: 'solid' | 'dashed' | 'dotted';
+  borderRadius?: number;
 }
 
 /**

@@ -8,7 +8,9 @@ import {
   ColorPicker,
   FontFamilySelect,
   FontWeightSelect,
+  SpacingEditor,
 } from '../PropertyEditor';
+import { defaultSpacing } from '@/types/defaults';
 
 export interface BodySettingsEditorProps {
   globalStyles: GlobalStyles;
@@ -63,6 +65,11 @@ export function BodySettingsEditor({ globalStyles, onChange }: BodySettingsEdito
         <FontWeightSelect
           value={globalStyles.fontWeight ?? '400'}
           onChange={(value) => onChange({ fontWeight: value })}
+        />
+        <SpacingEditor
+          label="Body Padding"
+          value={globalStyles.padding ?? defaultSpacing}
+          onChange={(value) => onChange({ padding: value })}
         />
       </PropertySection>
 

@@ -4,6 +4,7 @@
  */
 
 import type { SectionBlock } from './block';
+import type { Spacing } from './props';
 
 // ============================================================
 // グローバルスタイル
@@ -42,6 +43,8 @@ export interface GlobalStyles {
   preheaderText?: string;
   /** HTMLタイトル（アクセシビリティ用） */
   htmlTitle?: string;
+  /** Bodyコンテナのパディング */
+  padding?: Spacing;
 }
 
 // ============================================================
@@ -181,6 +184,7 @@ export const DEFAULT_GLOBAL_STYLES: GlobalStyles = {
   textColor: '#333333',
   baseFontSize: 14,
   baseLineHeight: 1.5,
+  padding: { top: 0, right: 0, bottom: 0, left: 0 },
 };
 
 /**

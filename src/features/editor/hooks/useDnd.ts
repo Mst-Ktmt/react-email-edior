@@ -162,7 +162,7 @@ function createDefaultBlock(blockType: string, localizedDefaults?: LocalizedDefa
 
 export function useDnd(): UseDndReturn {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const { document, addBlock, reorderBlocks } = useDocumentStore();
+  const { document, addBlock, reorderBlocks, addBlockToColumn } = useDocumentStore();
   const pushState = useHistoryStore((state) => state.pushState);
   const t = useTranslations('Defaults');
 
@@ -217,6 +217,32 @@ export function useDnd(): UseDndReturn {
       return;
     }
 
+    // Block dropped from sidebar to column
+    if (activeData?.type === 'sidebar-block' && String(overId).startsWith('column-')) {
+      const blockType = activeData.blockType as string;
+      const match = String(overId).match(/^column-(.+)-(\d+)$/);
+
+      if (match) {
+        const [, parentBlockId, columnIndexStr] = match;
+        const columnIndex = parseInt(columnIndexStr, 10);
+
+        // セクションブロックは列内に追加できない
+        if (blockType === 'section') {
+          return;
+        }
+
+        const newBlock = createDefaultBlock(blockType, localizedDefaults);
+        if (!newBlock || !document) return;
+
+        // Undo/Redo用に現在の状態を保存
+        pushState(document, 'Add block to column');
+
+        // 列内へブロックを追加
+        addBlockToColumn(parentBlockId, columnIndex, newBlock);
+        return;
+      }
+    }
+
     // Block dropped from sidebar to canvas
     if (activeData?.type === 'sidebar-block' && overId === 'canvas') {
       const blockType = activeData.blockType as string;
@@ -256,7 +282,7 @@ export function useDnd(): UseDndReturn {
         addBlock(newBlock);
       }
     }
-  }, [document, addBlock, reorderBlocks, pushState, localizedDefaults]);
+  }, [document, addBlock, reorderBlocks, addBlockToColumn, pushState, localizedDefaults]);
 
   const handleDragCancel = useCallback(() => {
     setActiveId(null);

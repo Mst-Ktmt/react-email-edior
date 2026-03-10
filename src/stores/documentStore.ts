@@ -7,8 +7,8 @@
 
 import { create } from 'zustand';
 import type { EmailDocument } from '@/types/document';
-import type { Block, SectionBlock } from '@/types/block';
-import { isSectionBlock } from '@/types/block';
+import type { Block, SectionBlock, ColumnsBlock as ColumnsBlockType, LeafBlock } from '@/types/block';
+import { isSectionBlock, isColumnsBlock } from '@/types/block';
 
 // ============================================================
 // Store Interface
@@ -39,6 +39,8 @@ interface DocumentStore {
   setDirty: (dirty: boolean) => void;
   /** グローバルスタイルを更新 */
   updateGlobalStyles: (updates: Partial<EmailDocument['globalStyles']>) => void;
+  /** 列内へブロックを追加 */
+  addBlockToColumn: (parentBlockId: string, columnIndex: number, block: Block) => void;
 }
 
 // ============================================================
@@ -60,6 +62,18 @@ function updateBlockInSection(
     if (isSectionBlock(child)) {
       return updateBlockInSection(child, blockId, updates);
     }
+    // ColumnsBlock内のブロックを更新
+    if (isColumnsBlock(child)) {
+      const newColumns = child.columns.map((column) => ({
+        ...column,
+        children: column.children.map((columnChild) =>
+          columnChild.id === blockId
+            ? ({ ...columnChild, ...updates } as typeof columnChild)
+            : columnChild
+        ),
+      }));
+      return { ...child, columns: newColumns };
+    }
     return child;
   });
 
@@ -78,6 +92,14 @@ function removeBlockFromSection(
     .map((child) => {
       if (isSectionBlock(child)) {
         return removeBlockFromSection(child, blockId);
+      }
+      // ColumnsBlock内のブロックを削除
+      if (isColumnsBlock(child)) {
+        const newColumns = child.columns.map((column) => ({
+          ...column,
+          children: column.children.filter((columnChild) => columnChild.id !== blockId),
+        }));
+        return { ...child, columns: newColumns };
       }
       return child;
     });
@@ -98,6 +120,14 @@ function findBlockInSections(
       if (child.id === blockId) return true;
       if (isSectionBlock(child) && findBlockInSections([child], blockId)) {
         return true;
+      }
+      // ColumnsBlock内のブロックを検索
+      if (isColumnsBlock(child)) {
+        for (const column of child.columns) {
+          for (const columnChild of column.children) {
+            if (columnChild.id === blockId) return true;
+          }
+        }
       }
     }
   }
@@ -260,6 +290,48 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
     set({
       document: newDocument,
       isDirty: true,
+    });
+  },
+
+  addBlockToColumn: (parentBlockId, columnIndex, block) => {
+    const { document } = get();
+    if (!document) return;
+
+    const newDocument = structuredClone(document);
+    newDocument.updatedAt = new Date().toISOString();
+
+    // 再帰的にColumnsBlockを検索して更新
+    const findAndUpdateBlock = (currentBlock: Block): Block => {
+      if (currentBlock.id === parentBlockId && isColumnsBlock(currentBlock)) {
+        const updatedColumns = [...currentBlock.columns];
+        if (updatedColumns[columnIndex]) {
+          updatedColumns[columnIndex] = {
+            ...updatedColumns[columnIndex],
+            children: [...updatedColumns[columnIndex].children, block as LeafBlock],
+          };
+        }
+        return { ...currentBlock, columns: updatedColumns };
+      }
+
+      // SectionBlockの場合、子要素を再帰的に探索
+      if (isSectionBlock(currentBlock)) {
+        const updatedChildren = currentBlock.children.map((child) =>
+          findAndUpdateBlock(child)
+        );
+        return { ...currentBlock, children: updatedChildren };
+      }
+
+      return currentBlock;
+    };
+
+    newDocument.sections = newDocument.sections.map((section) =>
+      findAndUpdateBlock(section) as SectionBlock
+    );
+
+    set({
+      document: newDocument,
+      isDirty: true,
+      selectedBlockId: block.id,
     });
   },
 }));
