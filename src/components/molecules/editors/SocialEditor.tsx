@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { GripVertical, Trash2 } from 'lucide-react';
 import type { SocialBlockProps, SocialLink, SocialPlatform } from '@/types';
 import {
   PropertySection,
@@ -10,47 +12,43 @@ import {
   TextInput,
   ResponsiveToggle,
 } from '../PropertyEditor';
+import { SocialIconPicker } from '../SocialIconPicker';
+import { SocialIcon } from '@/components/atoms/SocialIcon';
+import { getPlatformMetadata } from '@/lib/social/platforms';
 
 export interface SocialEditorProps {
   props: SocialBlockProps;
   onChange: (props: Partial<SocialBlockProps>) => void;
 }
 
-const PLATFORMS: { value: SocialPlatform; label: string }[] = [
-  { value: 'facebook', label: 'Facebook' },
-  { value: 'twitter', label: 'Twitter/X' },
-  { value: 'instagram', label: 'Instagram' },
-  { value: 'linkedin', label: 'LinkedIn' },
-  { value: 'youtube', label: 'YouTube' },
-  { value: 'tiktok', label: 'TikTok' },
-  { value: 'pinterest', label: 'Pinterest' },
-];
-
 const ICON_STYLES = [
-  { value: 'circle', label: 'Circle' },
-  { value: 'square', label: 'Square' },
-  { value: 'rounded', label: 'Rounded' },
-  { value: 'none', label: 'None' },
+  { value: 'circle' as const, label: 'Circle' },
+  { value: 'circle-dark' as const, label: 'Circle Dark' },
+  { value: 'circle-light' as const, label: 'Circle Light' },
+  { value: 'square' as const, label: 'Square' },
+  { value: 'square-dark' as const, label: 'Square Dark' },
+  { value: 'rounded' as const, label: 'Rounded' },
+  { value: 'rounded-dark' as const, label: 'Rounded Dark' },
+  { value: 'none' as const, label: 'None' },
 ];
 
 export function SocialEditor({ props, onChange }: SocialEditorProps) {
+  const [showPicker, setShowPicker] = useState(false);
+
   const handleLinkChange = (index: number, updates: Partial<SocialLink>) => {
     const newLinks = [...props.links];
     newLinks[index] = { ...newLinks[index], ...updates };
     onChange({ links: newLinks });
   };
 
-  const handleAddLink = () => {
-    const usedPlatforms = new Set(props.links.map((l) => l.platform));
-    const availablePlatform = PLATFORMS.find((p) => !usedPlatforms.has(p.value));
-    if (availablePlatform) {
-      onChange({
-        links: [
-          ...props.links,
-          { platform: availablePlatform.value, url: '', enabled: true },
-        ],
-      });
-    }
+  const handleAddLink = (platform: SocialPlatform) => {
+    onChange({
+      links: [
+        ...props.links,
+        { platform, url: '', enabled: true },
+      ],
+    });
+    setShowPicker(false);
   };
 
   const handleRemoveLink = (index: number) => {
@@ -58,81 +56,91 @@ export function SocialEditor({ props, onChange }: SocialEditorProps) {
     onChange({ links: newLinks });
   };
 
+  const usedPlatforms = new Set(props.links.map((l) => l.platform));
+
   return (
     <>
       <PropertySection title="Icons">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 mb-3">
           <span className="text-xs font-medium text-gray-600">Icon Style</span>
-          <select
-            value={props.iconStyle ?? 'circle'}
-            onChange={(e) => onChange({ iconStyle: e.target.value as SocialBlockProps['iconStyle'] })}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
+          <div className="grid grid-cols-2 gap-2">
             {ICON_STYLES.map((style) => (
-              <option key={style.value} value={style.value}>
+              <button
+                key={style.value}
+                type="button"
+                onClick={() => onChange({ iconStyle: style.value })}
+                className={`px-3 py-2 text-xs rounded-md border transition-colors ${
+                  (props.iconStyle ?? 'circle') === style.value
+                    ? 'bg-blue-500 text-white border-blue-500'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
                 {style.label}
-              </option>
+              </button>
             ))}
-          </select>
+          </div>
         </div>
-        <div className="flex flex-col gap-3">
-          {props.links.map((link, index) => (
-            <div key={index} className="p-3 bg-gray-50 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <select
-                  value={link.platform}
-                  onChange={(e) =>
-                    handleLinkChange(index, {
-                      platform: e.target.value as SocialPlatform,
-                    })
-                  }
-                  className="px-2 py-1 text-sm border border-gray-300 rounded-md"
-                >
-                  {PLATFORMS.map((p) => (
-                    <option key={p.value} value={p.value}>
-                      {p.label}
-                    </option>
-                  ))}
-                </select>
-                <div className="flex items-center gap-2">
-                  <label className="flex items-center gap-1 text-xs">
-                    <input
-                      type="checkbox"
-                      checked={link.enabled}
-                      onChange={(e) =>
-                        handleLinkChange(index, { enabled: e.target.checked })
-                      }
-                      className="rounded"
-                    />
-                    Enabled
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveLink(index)}
-                    className="text-red-500 hover:text-red-700 text-sm"
-                  >
-                    Remove
-                  </button>
+
+        <div className="flex flex-col gap-2">
+          {props.links.map((link, index) => {
+            const metadata = getPlatformMetadata(link.platform);
+            return (
+              <div
+                key={index}
+                className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg group"
+              >
+                <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
+
+                <SocialIcon
+                  platform={link.platform}
+                  iconStyle={props.iconStyle ?? 'circle-light'}
+                  size={32}
+                />
+
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-700 truncate">
+                    {metadata?.label ?? link.platform}
+                  </div>
+                  <input
+                    type="text"
+                    value={link.url}
+                    onChange={(e) => handleLinkChange(index, { url: e.target.value })}
+                    placeholder="https://..."
+                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded-md mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 </div>
+
+                <label className="flex items-center gap-1 text-xs whitespace-nowrap">
+                  <input
+                    type="checkbox"
+                    checked={link.enabled}
+                    onChange={(e) => handleLinkChange(index, { enabled: e.target.checked })}
+                    className="rounded"
+                  />
+                  <span className="hidden sm:inline">Show</span>
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => handleRemoveLink(index)}
+                  className="text-red-500 hover:text-red-700 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
-              <TextInput
-                label="URL"
-                value={link.url}
-                onChange={(value) => handleLinkChange(index, { url: value })}
-              />
-            </div>
-          ))}
-          {props.links.length < PLATFORMS.length && (
-            <button
-              type="button"
-              onClick={handleAddLink}
-              className="w-full py-2 text-sm text-blue-600 border border-dashed border-blue-300 rounded-md hover:bg-blue-50"
-            >
-              + Add Social Link
-            </button>
-          )}
+            );
+          })}
+
+          <button
+            type="button"
+            onClick={() => setShowPicker(true)}
+            className="w-full py-3 text-sm font-medium text-blue-600 border-2 border-dashed border-blue-300 rounded-md hover:bg-blue-50 transition-colors"
+          >
+            + Add Social Icon
+          </button>
         </div>
       </PropertySection>
+
       <PropertySection title="Icon Style">
         <NumberInput
           label="Icon Size"
@@ -161,6 +169,7 @@ export function SocialEditor({ props, onChange }: SocialEditorProps) {
           onChange={(value) => onChange({ align: value })}
         />
       </PropertySection>
+
       <PropertySection title="General">
         <SpacingEditor
           label="Padding"
@@ -168,6 +177,7 @@ export function SocialEditor({ props, onChange }: SocialEditorProps) {
           onChange={(value) => onChange({ padding: value })}
         />
       </PropertySection>
+
       <PropertySection title="Responsive Design">
         <ResponsiveToggle
           hideOnDesktop={props.hideOnDesktop ?? false}
@@ -176,6 +186,14 @@ export function SocialEditor({ props, onChange }: SocialEditorProps) {
           onChangeMobile={(value) => onChange({ hideOnMobile: value })}
         />
       </PropertySection>
+
+      {showPicker && (
+        <SocialIconPicker
+          usedPlatforms={usedPlatforms}
+          onSelect={handleAddLink}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
     </>
   );
 }

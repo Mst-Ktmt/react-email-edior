@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import type { ImageBlockProps } from '@/types';
 import {
   PropertySection,
@@ -10,6 +11,7 @@ import {
   LinkTargetSelect,
   ResponsiveToggle,
 } from '../PropertyEditor';
+import { ImageUploader } from '@/components/atoms/ImageUploader';
 
 export interface ImageEditorProps {
   props: ImageBlockProps;
@@ -17,15 +19,49 @@ export interface ImageEditorProps {
 }
 
 export function ImageEditor({ props, onChange }: ImageEditorProps) {
+  const [uploadTab, setUploadTab] = useState<'upload' | 'url'>('upload');
+
   return (
     <>
       <PropertySection title="Image">
-        <TextInput
-          label="Image URL"
-          value={props.src}
-          onChange={(value) => onChange({ src: value })}
-          placeholder="https://..."
-        />
+        <div className="flex border-b border-gray-200 mb-3">
+          <button
+            type="button"
+            onClick={() => setUploadTab('upload')}
+            className={`flex-1 px-3 py-2 text-sm font-medium transition-colors ${
+              uploadTab === 'upload'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Upload
+          </button>
+          <button
+            type="button"
+            onClick={() => setUploadTab('url')}
+            className={`flex-1 px-3 py-2 text-sm font-medium transition-colors ${
+              uploadTab === 'url'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            URL
+          </button>
+        </div>
+
+        {uploadTab === 'upload' ? (
+          <ImageUploader
+            onUpload={(url) => onChange({ src: url })}
+          />
+        ) : (
+          <TextInput
+            label="Image URL"
+            value={props.src}
+            onChange={(value) => onChange({ src: value })}
+            placeholder="https://..."
+          />
+        )}
+
         <TextInput
           label="Alt Text"
           value={props.alt}

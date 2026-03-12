@@ -26,6 +26,7 @@ interface Props {
   onClick?: () => void;
   onColumnClick?: (columnIndex: number) => void;
   isPreviewMode?: boolean;
+  isMobile?: boolean;
 }
 
 /**
@@ -48,6 +49,7 @@ export function ColumnsBlock({
   onClick,
   onColumnClick,
   isPreviewMode = false,
+  isMobile = false,
 }: Props) {
   const { columnCount, gap, columnWidths, verticalAlign, stackOnMobile } = {
     ...defaultColumnsBlockProps,
@@ -86,7 +88,7 @@ export function ColumnsBlock({
       <div
         className={`
           flex w-full ${alignItemsClass}
-          ${stackOnMobile ? 'flex-col md:flex-row' : 'flex-row'}
+          ${stackOnMobile && isMobile ? 'flex-col' : 'flex-row'}
         `}
         style={{ gap: `${gap}px` }}
       >

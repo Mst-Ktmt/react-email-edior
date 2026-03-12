@@ -8,6 +8,7 @@ import { ExportButton } from '@/features/export';
 import { LocaleSwitcher } from '@/components/atoms/LocaleSwitcher';
 import { UndoRedoButtons } from '@/components/molecules/UndoRedoButtons';
 import { SaveLoadButtons } from '@/components/molecules/SaveLoadButtons';
+import { PreviewToggle } from '@/components/molecules/PreviewToggle';
 import { useDocumentStore } from '@/stores/documentStore';
 import { useHistoryStore } from '@/stores/historyStore';
 import { useUIStore } from '@/stores/uiStore';
@@ -64,6 +65,7 @@ function EditorHeader() {
           onUndo={handleUndo}
           onRedo={handleRedo}
         />
+        <PreviewToggle />
       </div>
       <div className="flex items-center gap-3">
         <SaveLoadButtons

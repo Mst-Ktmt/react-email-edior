@@ -247,7 +247,7 @@ export type ColumnCount = 1 | 2 | 3 | 4;
 /**
  * カラムブロックのプロパティ
  */
-export interface ColumnsBlockProps {
+export interface ColumnsBlockProps extends ResponsiveSettings {
   columnCount: ColumnCount;
   columnWidths: number[];
   gap: number;
@@ -312,10 +312,26 @@ export type SocialPlatform =
   | 'facebook'
   | 'twitter'
   | 'instagram'
-  | 'linkedin'
   | 'youtube'
   | 'tiktok'
-  | 'pinterest';
+  | 'pinterest'
+  | 'whatsapp'
+  | 'line'
+  | 'telegram'
+  | 'medium'
+  | 'spotify'
+  | 'reddit'
+  | 'discord'
+  | 'twitch'
+  | 'github'
+  | 'wechat'
+  | 'weibo'
+  | 'threads'
+  | 'mastodon'
+  | 'snapchat'
+  | 'vimeo'
+  | 'behance'
+  | 'dribbble';
 
 /**
  * ソーシャルリンク
@@ -329,7 +345,15 @@ export interface SocialLink {
 /**
  * アイコンスタイル
  */
-export type IconStyle = 'circle' | 'square' | 'rounded' | 'none';
+export type IconStyle =
+  | 'circle'
+  | 'circle-dark'
+  | 'circle-light'
+  | 'square'
+  | 'square-dark'
+  | 'rounded'
+  | 'rounded-dark'
+  | 'none';
 
 /**
  * ソーシャルブロックのプロパティ

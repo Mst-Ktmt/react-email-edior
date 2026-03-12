@@ -253,28 +253,37 @@ export function ColumnsEditor({ props, onChange }: ColumnsEditorProps) {
         </div>
       </PropertySection>
 
-      <PropertySection title="Responsive">
-        <label className="flex items-center justify-between cursor-pointer">
-          <span className="text-sm text-gray-700">Stack on Mobile</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={props.stackOnMobile}
-            onClick={() => onChange({ stackOnMobile: !props.stackOnMobile })}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              props.stackOnMobile ? 'bg-blue-500' : 'bg-gray-300'
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                props.stackOnMobile ? 'translate-x-6' : 'translate-x-1'
+      <PropertySection title="Responsive Design">
+        <ResponsiveToggle
+          hideOnDesktop={props.hideOnDesktop ?? false}
+          hideOnMobile={props.hideOnMobile ?? false}
+          onChangeDesktop={(value) => onChange({ hideOnDesktop: value })}
+          onChangeMobile={(value) => onChange({ hideOnMobile: value })}
+        />
+
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <label className="flex items-center justify-between cursor-pointer">
+            <span className="text-sm text-gray-700">Stack on Mobile</span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={props.stackOnMobile}
+              onClick={() => onChange({ stackOnMobile: !props.stackOnMobile })}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                props.stackOnMobile ? 'bg-blue-500' : 'bg-gray-300'
               }`}
-            />
-          </button>
-        </label>
-        <p className="text-xs text-gray-400">
-          When enabled, columns stack vertically on mobile devices.
-        </p>
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  props.stackOnMobile ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </label>
+          <p className="text-xs text-gray-400 mt-2">
+            When enabled, columns stack vertically on mobile devices.
+          </p>
+        </div>
       </PropertySection>
     </>
   );

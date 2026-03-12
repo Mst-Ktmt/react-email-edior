@@ -236,6 +236,7 @@ function BlockRenderer({
           onClick={handleClick}
           onColumnClick={handleColumnClick}
           isPreviewMode={isPreviewMode}
+          isMobile={isMobile}
         />
       );
     }
@@ -266,6 +267,7 @@ function BlockRenderer({
           props={block.props}
           isSelected={isSelected}
           onClick={handleClick}
+          isMobile={isMobile}
         />
       );
 

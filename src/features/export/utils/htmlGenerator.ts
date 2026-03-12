@@ -19,12 +19,15 @@ import type {
   SpacerBlock,
   VideoBlock,
   TimerBlock,
+  SocialBlock,
   GlobalStyles,
 } from '@/types';
 import { isSectionBlock, isColumnsBlock } from '@/types';
 import { generateInlineStyles } from './cssInliner';
 import type { StyleMap } from './cssInliner';
 import { buildTrackingUrl } from './buildTrackingUrl';
+import * as SimpleIcons from 'simple-icons';
+import { getPlatformMetadata } from '@/lib/social/platforms';
 
 /**
  * Generate complete email HTML from document
@@ -116,6 +119,8 @@ export function generateBlockHtml(block: Block, globalStyles: GlobalStyles): str
       return generateVideoHtml(block as VideoBlock);
     case 'timer':
       return generateTimerHtml(block as TimerBlock);
+    case 'social':
+      return generateSocialHtml(block as SocialBlock);
     default:
       return `<!-- Unknown block type: ${(block as Block).type} -->`;
   }
@@ -556,6 +561,96 @@ function generateTimerHtml(block: TimerBlock): string {
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
       <tr>
         ${cells.join('\n        ')}
+      </tr>
+    </table>
+  </td>
+</tr>`;
+}
+
+/**
+ * Social block (social media icons)
+ */
+function generateSocialHtml(block: SocialBlock): string {
+  const { props } = block;
+  const { links, iconSize, iconColor, iconStyle = 'circle-light', gap, align, padding } = props;
+
+  const enabledLinks = links.filter((link) => link.enabled);
+  if (enabledLinks.length === 0) {
+    return '';
+  }
+
+  // Determine alignment
+  const alignValue = align === 'center' ? 'center' : align === 'right' ? 'right' : 'left';
+
+  const tdStyles = generateInlineStyles({
+    textAlign: align,
+    padding: formatPadding(padding),
+  });
+
+  // Generate icons HTML
+  const iconsHtml = enabledLinks
+    .map((link) => {
+      const metadata = getPlatformMetadata(link.platform);
+      if (!metadata) return '';
+
+      // Get icon from Simple Icons
+      const iconKey = `si${metadata.iconSlug.charAt(0).toUpperCase()}${metadata.iconSlug.slice(1)}`;
+      const icon = (SimpleIcons as Record<string, { svg: string; hex: string }>)[iconKey];
+      if (!icon) return '';
+
+      const brandColor = metadata.brandColor;
+      const finalColor = iconColor || brandColor;
+
+      // Determine background and icon color based on style
+      const getStyleColors = () => {
+        switch (iconStyle) {
+          case 'circle':
+          case 'rounded':
+            return { bgColor: finalColor, iconColor: '#FFFFFF', borderRadius: iconStyle === 'circle' ? '50%' : '8px' };
+          case 'circle-dark':
+          case 'rounded-dark':
+            return { bgColor: '#000000', iconColor: '#FFFFFF', borderRadius: iconStyle === 'circle-dark' ? '50%' : '8px' };
+          case 'circle-light':
+            return { bgColor: '#FFFFFF', iconColor: finalColor, borderRadius: '50%' };
+          case 'square':
+            return { bgColor: 'transparent', iconColor: finalColor, borderRadius: '0' };
+          case 'square-dark':
+            return { bgColor: '#000000', iconColor: '#FFFFFF', borderRadius: '0' };
+          case 'none':
+            return { bgColor: 'transparent', iconColor: finalColor, borderRadius: '0' };
+          default:
+            return { bgColor: finalColor, iconColor: '#FFFFFF', borderRadius: '50%' };
+        }
+      };
+
+      const { bgColor, iconColor: svgColor, borderRadius } = getStyleColors();
+      const iconSizeInner = iconSize * 0.6;
+
+      // Create SVG with proper color
+      const svgContent = icon.svg.replace(/fill="[^"]*"/g, `fill="${svgColor}"`);
+
+      return `<td style="padding: 0 ${gap / 2}px;">
+  <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; display: block;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="${iconSize}" height="${iconSize}" style="background-color: ${bgColor}; border-radius: ${borderRadius};">
+      <tr>
+        <td align="center" valign="middle" style="padding: ${(iconSize - iconSizeInner) / 2}px;">
+          <svg width="${iconSizeInner}" height="${iconSizeInner}" viewBox="0 0 24 24" fill="${svgColor}" xmlns="http://www.w3.org/2000/svg">
+            ${svgContent.replace(/<svg[^>]*>|<\/svg>/g, '')}
+          </svg>
+        </td>
+      </tr>
+    </table>
+  </a>
+</td>`;
+    })
+    .filter((html) => html !== '')
+    .join('\n        ');
+
+  return `<tr${getResponsiveClasses(props)}>
+  <td style="${tdStyles}">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="${alignValue}" style="margin: 0 auto;">
+      <tr>
+        ${iconsHtml}
       </tr>
     </table>
   </td>
